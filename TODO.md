@@ -17,7 +17,7 @@
 
 ## Sonraki
 
-- [ ] Ürün illüstrasyonlarında ürünleri görselin tam ortasına hizala
+- [x] Ürün illüstrasyonlarında ürünleri görselin tam ortasına hizala (ölçülen sınırlara göre ortalama + ortak boyut)
 - [ ] Sektörler, hizmetler, kurumsal vb. içerik sayfaları için admin panelinde düzenleme sayfası
 - [ ] Admin panelinde "Ana sayfa" sayfası: ana sayfadaki bölümler özelleştirilebilsin
 

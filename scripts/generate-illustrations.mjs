@@ -5,6 +5,7 @@
 //   node scripts/generate-illustrations.mjs
 import fs from "node:fs";
 import path from "node:path";
+import { Resvg } from "@resvg/resvg-js";
 
 const root = path.resolve(import.meta.dirname, "..");
 const outDir = path.join(root, "public", "illustrations");
@@ -45,17 +46,52 @@ function defs() {
   return out.join("");
 }
 
-function frame(body, { shadowW = 520, shadowY = 470 } = {}) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
-<defs>
+const DEFS = () => `<defs>
 <radialGradient id="bg" cx="50%" cy="42%" r="75%"><stop offset="0%" stop-color="#ffffff"/><stop offset="65%" stop-color="#eef2f7"/><stop offset="100%" stop-color="#dfe6ee"/></radialGradient>
 <filter id="blur" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="14"/></filter>
 <filter id="soft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="1.2"/></filter>
 ${defs()}
-</defs>
+</defs>`;
+
+/** Pixel bounding box of the product (rendered without background and shadow). */
+function measure(body) {
+  const probe = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${DEFS()}${body}</svg>`;
+  const img = new Resvg(probe, { background: "rgba(0,0,0,0)" }).render();
+  const px = img.pixels;
+  let minX = W, minY = H, maxX = -1, maxY = -1;
+  for (let y = 0; y < img.height; y++) {
+    for (let x = 0; x < img.width; x++) {
+      if (px[(y * img.width + x) * 4 + 3] > 24) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  return { minX, minY, maxX, maxY };
+}
+
+// Every product is scaled into the same safe area and centred on the canvas from its measured
+// bounds; the floor shadow is placed under it. All illustrations therefore share one framing.
+const SAFE_W = 600, SAFE_H = 390, MAX_UPSCALE = 1.3;
+const SHADOW_GAP = 34; // product bottom → shadow centre
+function frame(body) {
+  const b = measure(body);
+  const w = b.maxX - b.minX, h = b.maxY - b.minY;
+  const scale = f(Math.min(SAFE_W / w, SAFE_H / h, MAX_UPSCALE));
+  const sw = w * scale, sh = h * scale;
+  const top = H / 2 - (sh + SHADOW_GAP) / 2; // product + shadow centred as one block
+  const cx = W / 2, cy = top + sh / 2;
+  const shadowY = f(top + sh + SHADOW_GAP - 8);
+  const shadowRx = f(Math.max(120, sw * 0.52));
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+${DEFS()}
 <rect width="${W}" height="${H}" fill="url(#bg)"/>
-<ellipse cx="${W / 2}" cy="${shadowY}" rx="${shadowW / 2}" ry="18" fill="#0b1f3f" opacity="0.22" filter="url(#blur)"/>
+<ellipse cx="${W / 2}" cy="${shadowY}" rx="${shadowRx}" ry="18" fill="#0b1f3f" opacity="0.22" filter="url(#blur)"/>
+<g transform="translate(${f(cx)} ${f(cy)}) scale(${scale}) translate(${f(-(b.minX + w / 2))} ${f(-(b.minY + h / 2))})">
 ${body}
+</g>
 </svg>
 `;
 }
@@ -126,8 +162,7 @@ function sealConical() {
         cyl({ x0: x + 66, x1: x + 92, R: 100, r: 58, mat: "steel" }) + sheen(x + 66, x + 92, 100),
       ]) +
       stack([cyl({ x0: x + 330, x1: x + 400, R: 76, r: 52, mat: "steel" }) + sheen(x + 330, x + 400, 76) + screws(x + 368, 76)]) +
-      sp.front,
-    { shadowW: 560 },
+      sp.front
   );
 }
 
@@ -239,8 +274,7 @@ function sealCartridge(double = false, split = false) {
       glandPlate(x + 60, x + 60 + gl, 168, 62, { ports: double ? 2 : 1, split }),
       cyl({ x0: x + 60 + gl, x1: x + 60 + gl + 110, R: 96, r: 60, mat: "steel" }) + sheen(x + 60 + gl, x + 170 + gl, 96),
       cyl({ x0: x + 170 + gl, x1: x + 196 + gl, R: 86, r: 60, mat: "carbon" }),
-    ]) + (split ? "" : clips),
-    { shadowW: 600 },
+    ]) + (split ? "" : clips)
   );
 }
 
@@ -259,8 +293,7 @@ function sealAgitator() {
       cyl({ x0: x + 44, x1: x + 150, R: 142, r: 66, mat: "blue" }) + sheen(x + 44, x + 150, 142, CY, 0.35) + port(x + 76, 142) + port(x + 122, 142),
       flange,
       cyl({ x0: x + 180, x1: x + 300, R: 120, r: 66, mat: "steel" }) + sheen(x + 180, x + 300, 120),
-    ]),
-    { shadowW: 640, shadowY: 505 },
+    ])
   );
 }
 
@@ -299,8 +332,7 @@ function rotaryJoint(double = false) {
         cyl({ x0: x + 130, x1: x + 330, R: 110, r: 0, mat: "cast" }) + sheen(x + 130, x + 330, 110, CY, 0.35) +
           `<text x="${x + 262}" y="${CY + 8}" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#e7ecf1" opacity=".55" letter-spacing="2">KARSU</text>`,
       ]) +
-      siphon,
-    { shadowW: 620 },
+      siphon
   );
 }
 
@@ -324,8 +356,7 @@ function swivelJoint() {
           `<ellipse cx="${x + 150}" cy="${CY - 40}" rx="8" ry="9" fill="#1b1f24"/><ellipse cx="${x + 200}" cy="${CY - 40}" rx="8" ry="9" fill="#1b1f24"/>` +
           `<rect x="${x + 170}" y="${CY - 104}" width="12" height="20" fill="url(#brass-h)"/><circle cx="${x + 176}" cy="${CY - 106}" r="7" fill="url(#brass-f)"/>`,
         cyl({ x0: x + 250, x1: x + 290, R: 62, r: 0, mat: "steel" }),
-      ]),
-    { shadowW: 560 },
+      ])
   );
 }
 
@@ -347,7 +378,7 @@ function supportVessel() {
     `<path d="M${cx} ${top - 118}l20 -18" stroke="#d6452b" stroke-width="3" stroke-linecap="round"/><circle cx="${cx}" cy="${top - 118}" r="4" fill="#0b1f3f"/>`;
   const coil = `<path d="M${cx - R - 60} ${top + 90}h60M${cx - R - 60} ${top + 190}h60" stroke="url(#steel-b)" stroke-width="12"/>` +
     [top + 90, top + 190].map((y) => `<rect x="${cx - R - 84}" y="${y - 12}" width="26" height="24" rx="3" fill="url(#brass-b)"/>`).join("");
-  return frame(shell + legs + sight + gauge + coil + `<text x="${cx - 36}" y="${top + 120}" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#4b545e" opacity=".5" letter-spacing="2">KARSU</text>`, { shadowW: 360, shadowY: bot + 70 });
+  return frame(shell + legs + sight + gauge + coil + `<text x="${cx - 36}" y="${top + 120}" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#4b545e" opacity=".5" letter-spacing="2">KARSU</text>`);
 }
 
 // ---------------------------------------------------------------------------
@@ -394,7 +425,7 @@ function packing(kind) {
   s += `<path d="M${ex + 150} ${ey - 26}l18 -12v${band}l-18 12Z" fill="${c.dark}"/>`;
   s += `<path d="M${ex - 170} ${ey}l18 -12L${ex + 168} ${ey - 38}L${ex + 150} ${ey - 26}Z" fill="url(#braid)" opacity=".85"/>`;
   if (c.stripe) s += `<path d="M${ex - 170} ${ey + 3}L${ex + 150} ${ey - 23}M${ex - 170} ${ey + band - 3}L${ex + 150} ${ey + band - 29}" stroke="${c.stripe}" stroke-width="5"/>`;
-  return frame(s, { shadowW: 560, shadowY: 440 });
+  return frame(s);
 }
 
 // ---------------------------------------------------------------------------
@@ -418,7 +449,7 @@ function oring(kind) {
       `<ellipse cx="${cx}" cy="${cy - t * 0.22}" rx="${R}" ry="${f(R * ky)}" fill="none" stroke="#fff" stroke-opacity="${kind === "fep" ? 0.55 : 0.28}" stroke-width="${t * 0.14}"/>` +
       (kind === "fep" ? `<ellipse cx="${cx}" cy="${cy}" rx="${R}" ry="${f(R * ky)}" fill="none" stroke="#fff6d8" stroke-opacity=".28" stroke-width="${t}"/>` : "");
   };
-  return frame(ring(360, 260, 190, 46) + ring(560, 380, 90, 26), { shadowW: 600, shadowY: 430 });
+  return frame(ring(360, 260, 190, 46) + ring(560, 380, 90, 26));
 }
 
 // ---------------------------------------------------------------------------
@@ -436,7 +467,7 @@ function flatRing(cx, cy, R, r, h, mat, ky = 0.42) {
 }
 
 function sealFace(mat) {
-  return frame(flatRing(330, 250, 190, 110, 46, mat) + flatRing(580, 380, 110, 64, 34, mat), { shadowW: 620, shadowY: 440 });
+  return frame(flatRing(330, 250, 190, 110, 46, mat) + flatRing(580, 380, 110, 64, 34, mat));
 }
 
 function slab(x, y, w, d, h, top, side, front) {
@@ -453,8 +484,7 @@ function ptfe() {
     slab(150, 260, 460, 300, 36, "#fbfbf8", "#dcdcd4", "#ecece6") +
       slab(190, 232, 420, 260, 26, "#f7f7f2", "#d6d6ce", "#e6e6df") +
       rod(372, 34, 420) + rod(430, 26, 380) +
-      cyl({ x0: 520, x1: 610, R: 60, r: 42, mat: "ceramic", cy: 440 }),
-    { shadowW: 640, shadowY: 490 },
+      cyl({ x0: 520, x1: 610, R: 60, r: 42, mat: "ceramic", cy: 440 })
   );
 }
 
@@ -464,8 +494,7 @@ function gasketSheet() {
     `<ellipse cx="${cx}" cy="${cy}" rx="${R}" ry="${f(R * 0.42)}" fill="#6d8b6f"/><ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${f(r * 0.42)}" fill="url(#bg)"/>` +
     Array.from({ length: 8 }, (_, i) => { const t = (i / 8) * Math.PI * 2; const rr = (R + r) / 2; return `<ellipse cx="${f(cx + Math.cos(t) * rr)}" cy="${f(cy + Math.sin(t) * rr * 0.42)}" rx="9" ry="4" fill="url(#bg)"/>`; }).join("");
   return frame(
-    slab(120, 300, 480, 320, 10, "#7d9a7f", "#4b6650", "#5b7760") + slab(150, 280, 440, 280, 8, "#86a288", "#4f6a54", "#607c64") + ring(470, 400, 150, 80),
-    { shadowW: 640, shadowY: 480 },
+    slab(120, 300, 480, 320, 10, "#7d9a7f", "#4b6650", "#5b7760") + slab(150, 280, 440, 280, 8, "#86a288", "#4f6a54", "#607c64") + ring(470, 400, 150, 80)
   );
 }
 
@@ -473,8 +502,7 @@ function rubberSheet() {
   return frame(
     slab(110, 350, 380, 300, 12, "#2e3136", "#0f1012", "#1b1d20") +
       cyl({ x0: 400, x1: 700, R: 90, r: 26, mat: "rubber", cy: 300 }) +
-      `<path d="M${400 - K * 90} ${300 + 60}q20 40 -60 60" stroke="#000" stroke-opacity=".3" fill="none"/>`,
-    { shadowW: 660, shadowY: 480 },
+      `<path d="M${400 - K * 90} ${300 + 60}q20 40 -60 60" stroke="#000" stroke-opacity=".3" fill="none"/>`
   );
 }
 
@@ -484,7 +512,7 @@ function spiralGasket() {
   // spiral winding lines on the steel band
   for (let r = 116; r < 168; r += 5) s += `<ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${f(r * ky)}" fill="none" stroke="${r % 2 ? "#2c3036" : "#e9edf1"}" stroke-width="2"/>`;
   s += flatRing(cx, cy, 108, 84, 12, "steelDark", ky).replace(/<path[^>]*opacity="\.75"\/>/, "");
-  return frame(s, { shadowW: 580, shadowY: 440 });
+  return frame(s);
 }
 
 function lapping() {
@@ -496,7 +524,7 @@ function lapping() {
   s += `</g>`;
   s += flatRing(cx - 90, cy - 10, 96, 76, 34, "steel", ky) + flatRing(cx - 90, cy - 10, 56, 32, 20, "carbon", ky);
   s += flatRing(cx + 120, cy + 20, 80, 62, 30, "steel", ky) + flatRing(cx + 120, cy + 20, 46, 26, 16, "sic", ky);
-  return frame(s, { shadowW: 620, shadowY: 400 + 60 });
+  return frame(s);
 }
 
 // ---------------------------------------------------------------------------
