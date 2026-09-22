@@ -11,7 +11,8 @@
 - [x] Supabase kurulum kontrol betiği (tablolar, seed, RLS, storage, form kaydı)
 - [x] Yer tutucu içerik: canlıda sahte telefon/adres gösterilmesin, panelde eksik bilgi uyarısı
 - [x] Teknik veri kaynak listesi (hangi değer nereden, hangisi tahmini) → `docs/teknik-veri-kaynaklari.md`
-- [ ] Cloudflare Workers derlemesiyle son doğrulama ve commit
+- [x] Paylaşım görsellerini statik PNG olarak üret (`npm run og:build`; Worker 2,8 → 1,9 MB gzip)
+- [x] Cloudflare Workers derlemesiyle son doğrulama ve commit
 - [x] TODO.md çalışma kuralını CLAUDE.md ve AGENTS.md'ye ekle
 
 ## Sonraki

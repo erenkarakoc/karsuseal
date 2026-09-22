@@ -15,7 +15,8 @@
     "brand:illustrations": "node scripts/generate-illustrations.mjs",
     "seed:build": "node scripts/build-seed.mjs",
     "vapid": "node scripts/generate-vapid.mjs",
-    "check:setup": "node scripts/check-supabase.mjs"
+    "check:setup": "node scripts/check-supabase.mjs",
+    "og:build": "node scripts/build-og-images.mjs"
   },
   "dependencies": {
     "@pushforge/builder": "^2.0.5",
@@ -41,6 +42,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "opentype.js": "^2.0.0",
+    "satori": "^0.33.4",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.135.0"

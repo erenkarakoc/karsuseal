@@ -17,7 +17,8 @@ export const metadata: Metadata = {
   description:
     "Mekanik salmastralar, kartuş ve mikser salmastraları, döner başlıklar, yumuşak salmastralar, O-ringler ve conta ürünleri. Teknik destek ve hızlı teklif.",
   applicationName: "Karsu Seal",
-  openGraph: { type: "website", locale: "tr_TR", siteName: "Karsu Seal" },
+  openGraph: { type: "website", locale: "tr_TR", siteName: "Karsu Seal", images: [{ url: "/og/default.png", width: 1200, height: 630, alt: "Karsu Seal" }] },
+  twitter: { card: "summary_large_image" },
   appleWebApp: { capable: true, title: "Karsu Seal", statusBarStyle: "default" },
 };
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CategorySidebar } from "@/components/site/category-sidebar";
 import { CtaBand, PageHero, ProductGrid } from "@/components/site/ui";
+import { ogForCategory, ogImages } from "@/lib/og";
 import { getCategoryBySlug, getCategoryTree, getProductsForCategory } from "@/lib/catalog";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -14,6 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: data.category.name,
     description: data.category.summary ?? undefined,
+    openGraph: { images: ogImages(ogForCategory(data.category.slug), data.category.name) },
   };
 }
 

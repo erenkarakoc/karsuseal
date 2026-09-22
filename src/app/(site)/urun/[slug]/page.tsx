@@ -8,6 +8,7 @@ import { Breadcrumbs, CtaBand, ProductGrid, SectionHeading, btn } from "@/compon
 import { getCategoryBySlug, getCategories, getProductBySlug, getRelatedProducts } from "@/lib/catalog";
 import { SITE_URL } from "@/lib/env";
 import { imageFor } from "@/lib/images";
+import { ogForProduct, ogImages } from "@/lib/og";
 import { industries } from "@/data/site";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const p = await getProductBySlug(slug);
   if (!p) return {};
-  return { title: p.name, description: p.summary ?? undefined };
+  return { title: p.name, description: p.summary ?? undefined, openGraph: { images: ogImages(ogForProduct(p.slug), p.name) } };
 }
 
 const SPEC_ICON = (label: string) => {

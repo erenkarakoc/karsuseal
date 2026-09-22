@@ -158,3 +158,4 @@ Mekanik salmastraların çalışma limitleri (mil çapı, basınç, sıcaklık, 
 | `npm run brand:illustrations` | Standart ürün görsellerini üret |
 | `npm run vapid` | Web Push anahtar çifti üret |
 | `npm run check:setup` | Supabase ve ortam değişkenleri kurulum kontrolü |
+| `npm run og:build` | Sosyal medya paylaşım görsellerini (public/og) yeniden üret |
