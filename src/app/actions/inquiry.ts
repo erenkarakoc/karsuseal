@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { after } from "next/server";
 import { z } from "zod";
-import { isSupabaseConfigured } from "@/lib/env";
+import { isSupabaseConfigured, serverEnv } from "@/lib/env";
 import { notifyNewInquiry } from "@/lib/notify";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Inquiry } from "@/lib/types";
@@ -57,6 +57,25 @@ function fieldErrors(error: z.ZodError) {
   return out;
 }
 
+/** Cloudflare Turnstile check; skipped when no secret key is configured. */
+async function turnstileFailed(fd: FormData, ip: string | null) {
+  const { turnstileSecret } = serverEnv();
+  if (!turnstileSecret) return false;
+  const token = String(fd.get("cf-turnstile-response") ?? "");
+  if (!token) return true;
+  try {
+    const body = new URLSearchParams({ secret: turnstileSecret, response: token, ...(ip ? { remoteip: ip } : {}) });
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body });
+    const data = (await res.json()) as { success?: boolean };
+    return !data.success;
+  } catch (err) {
+    console.error("[turnstile]", err);
+    return true;
+  }
+}
+
+const TURNSTILE_ERROR = "Güvenlik doğrulaması tamamlanamadı. Lütfen doğrulamayı yenileyip tekrar gönderin.";
+
 /** Simple bot filters: hidden honeypot field + minimum fill time. */
 function looksLikeBot(fd: FormData) {
   if (String(fd.get("website") ?? "").length > 0) return true;
@@ -82,9 +101,11 @@ async function store(row: Omit<Inquiry, "id" | "status" | "admin_notes" | "creat
 
 export async function submitContact(_: FormState, fd: FormData): Promise<FormState> {
   if (looksLikeBot(fd)) return { ok: true, message: "Mesajınız alındı." };
+  const hdrs = await headers();
+  if (await turnstileFailed(fd, hdrs.get("cf-connecting-ip"))) return { ok: false, message: TURNSTILE_ERROR, values: echo(fd) };
   const parsed = contactSchema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return { ok: false, message: "Lütfen işaretli alanları kontrol edin.", errors: fieldErrors(parsed.error), values: echo(fd) };
-  const h = await headers();
+  const h = hdrs;
   const d = parsed.data;
   const res = await store({
     kind: "contact", name: d.name, company: d.company, email: d.email, phone: d.phone, city: d.city,
@@ -96,13 +117,15 @@ export async function submitContact(_: FormState, fd: FormData): Promise<FormSta
 
 export async function submitQuote(_: FormState, fd: FormData): Promise<FormState> {
   if (looksLikeBot(fd)) return { ok: true, message: "Teklif talebiniz alındı." };
+  const hdrs = await headers();
+  if (await turnstileFailed(fd, hdrs.get("cf-connecting-ip"))) return { ok: false, message: TURNSTILE_ERROR, values: echo(fd) };
   const parsed = quoteSchema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return { ok: false, message: "Lütfen işaretli alanları kontrol edin.", errors: fieldErrors(parsed.error), values: echo(fd) };
   const d = parsed.data;
   if (!d.items.length && !d.message) {
     return { ok: false, message: "Teklif listesine ürün ekleyin veya ihtiyacınızı mesaj alanında açıklayın.", errors: { message: "Ürün ya da açıklama gerekli" }, values: echo(fd) };
   }
-  const h = await headers();
+  const h = hdrs;
   const details = Object.fromEntries(
     Object.entries({ medium: d.medium, temperature: d.temperature, pressure: d.pressure, speed: d.speed, shaft: d.shaft, equipment: d.equipment }).filter(([, v]) => v),
   ) as Record<string, string>;

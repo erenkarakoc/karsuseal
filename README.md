@@ -73,6 +73,13 @@ npm run vapid   # NEXT_PUBLIC_VAPID_PUBLIC_KEY ve VAPID_PRIVATE_KEY üretir
 3. `NOTIFY_FROM_EMAIL="Karsu Seal <bildirim@karsuseal.com>"` (doğrulanmış alan adında bir adres).
 4. Panelde **Ayarlar → E-posta bildirimleri** alanına alıcı adresleri yazın, **Test e-postası** ile deneyin.
 
+**Spam koruması (isteğe bağlı, ücretsiz)** — [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/):
+
+1. Cloudflare panelinde **Turnstile → Add widget**, alan adı `karsuseal.com`, mod "Managed".
+2. Site key → `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (`.env.production`), secret key → `npx wrangler secret put TURNSTILE_SECRET_KEY`.
+
+Anahtarlar tanımlı değilse formlar yalnızca gizli tuzak alanı ve süre kontrolüyle korunur.
+
 ## 4. Cloudflare'e yayınlama
 
 ```bash
@@ -86,6 +93,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
 NEXT_PUBLIC_SITE_URL=https://karsuseal.com
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=Bxxxx
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=0x4AAAA...   # isteğe bağlı
 ```
 
 Gizli değerleri Worker secret olarak kaydedin:
@@ -96,6 +104,7 @@ npx wrangler secret put VAPID_PRIVATE_KEY     # tek tırnaksız JSON: {"kty":"EC
 npx wrangler secret put VAPID_SUBJECT         # mailto:info@karsuseal.com
 npx wrangler secret put RESEND_API_KEY
 npx wrangler secret put NOTIFY_FROM_EMAIL
+npx wrangler secret put TURNSTILE_SECRET_KEY   # isteğe bağlı
 ```
 
 Derleyip yayınlayın:

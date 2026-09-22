@@ -6,7 +6,7 @@
 - [x] Arama: Supabase bağlıyken muadil tipleri de kapsasın (`search_text` sütunu)
 - [x] PWA manifest + PNG ikonlar (iOS ana ekran ve push bildirimi için)
 - [x] Sosyal medya paylaşım görselleri (PNG): site, ürün, kategori
-- [ ] Cloudflare Turnstile spam koruması (anahtar tanımlıysa devreye girer)
+- [x] Cloudflare Turnstile spam koruması (anahtar tanımlıysa devreye girer)
 - [ ] Silinen / değiştirilen görselleri Supabase Storage'dan da sil
 - [ ] Supabase kurulum kontrol betiği (tablolar, seed, RLS, storage, form kaydı)
 - [ ] Yer tutucu içerik: canlıda sahte telefon/adres gösterilmesin, panelde eksik bilgi uyarısı

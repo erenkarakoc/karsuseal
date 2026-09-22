@@ -5,6 +5,7 @@ import { useActionState, useEffect, useRef } from "react";
 import { CircleCheck, LoaderCircle, Minus, Plus, Send, Trash, TriangleAlert } from "lucide-react";
 import { submitContact, submitQuote, type FormState } from "@/app/actions/inquiry";
 import { useQuoteCart } from "@/components/site/quote-cart";
+import { Turnstile } from "@/components/site/turnstile";
 import type { QuoteItem } from "@/lib/types";
 
 export const inputCls =
@@ -115,6 +116,7 @@ export function ContactForm() {
         <textarea id="message" name="message" rows={6} defaultValue={v.message} className={inputCls} />
       </Field>
       <Consent error={e.consent} />
+      <Turnstile resetKey={state} />
       <SubmitButton pending={pending} label="Mesajı gönder" />
     </form>
   );
@@ -226,6 +228,7 @@ export function QuoteForm({ initialItem }: { initialItem?: Omit<QuoteItem, "quan
       </fieldset>
 
       <Consent error={e.consent} />
+      <Turnstile resetKey={state} />
       <SubmitButton pending={pending} label="Teklif talebini gönder" />
     </form>
   );
