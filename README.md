@@ -89,11 +89,52 @@ Anahtarlar tanımlı değilse formlar yalnızca gizli tuzak alanı ve süre kont
 
 ## 4. Cloudflare'e yayınlama
 
+### A) GitHub + Workers Builds (önerilen)
+
+Her push'ta Cloudflare kodu kendi Linux sunucusunda derleyip yayınlar.
+
+1. **Supabase'i hazırlayın.** Eski şemayla kurulduysa SQL Editor'de arama sütununu ekleyin:
+   ```sql
+   create or replace function public.text_array_join(arr text[])
+   returns text language sql immutable parallel safe as $$ select array_to_string(arr, ' ') $$;
+   alter table public.products add column if not exists search_text text generated always as (
+     code || ' ' || name || ' ' || coalesce(summary, '') || ' ' || public.text_array_join(equivalents)
+   ) stored;
+   ```
+   Sonra `npm run check:setup -- --env .env` hatasız bitmeli.
+2. **Worker'ı oluşturun:** Cloudflare panel → **Workers & Pages → Create → Import a repository** → GitHub'ı bağlayın, `karsuseal` deposunu seçin.
+   - Project name: **`karsuseal`** (`wrangler.jsonc` içindeki `name` ile aynı olmalı)
+   - Production branch: kodun bulunduğu dal (şu an `karsu-seal-site`)
+   - Build command: `npx opennextjs-cloudflare build`
+   - Deploy command: `npx opennextjs-cloudflare deploy`
+   - **Build variables** (derleme anında koda gömülür, gizli değildir):
+     ```
+     NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
+     NEXT_PUBLIC_SITE_URL=https://karsuseal.<hesap-alt-alanı>.workers.dev
+     NODE_VERSION=22
+     NEXT_PUBLIC_VAPID_PUBLIC_KEY=Bxxxx            # isteğe bağlı
+     NEXT_PUBLIC_TURNSTILE_SITE_KEY=0x4AAAA...     # isteğe bağlı
+     ```
+     `workers.dev` alt alanınızı **Workers & Pages → sağ panel → Subdomain** kısmında görürsünüz.
+3. **Deploy**'a basın. İlk derleme birkaç dakika sürer.
+4. **Gizli değerleri girin:** Worker → **Settings → Variables and Secrets → Add** (tür: *Secret*):
+   `SUPABASE_SECRET_KEY` (zorunlu), isteğe bağlı olarak `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `RESEND_API_KEY`, `NOTIFY_FROM_EMAIL`, `TURNSTILE_SECRET_KEY`.
+   Secret'lar çalışma anında okunur; kaydetmek yeni bir sürüm yayınlar, yeniden derleme gerekmez.
+5. **Supabase → Authentication → URL Configuration:** Site URL'yi workers.dev adresi yapın, Redirect URLs'e `https://karsuseal.<alt-alan>.workers.dev/admin/auth/callback` ekleyin.
+6. Kontrol: ana sayfa, `/urunler` araması, iletişim formu (talep panelde görünmeli), `/admin` girişi.
+
+Alan adını sonra bağlamak için: **Worker → Settings → Domains & Routes → Add → Custom domain** (`karsuseal.com`, `www.karsuseal.com`), ardından `NEXT_PUBLIC_SITE_URL` build değişkenini ve Supabase URL ayarlarını yeni adrese çevirip yeniden derleyin (**Deployments → Retry build** veya yeni bir push).
+
+> `NEXT_PUBLIC_*` değerleri derlemeye gömüldüğü için değiştirdiğinizde yeniden derleme gerekir; secret'lar için gerekmez.
+
+### B) Bu bilgisayardan (CLI)
+
 ```bash
 npx wrangler login
 ```
 
-`.env.production` dosyası oluşturun (derleme anında koda gömülen, gizli olmayan değerler):
+`.env.production` dosyası oluşturun (derleme anında koda gömülen, gizli olmayan değerler; `.env`'deki değerleri ezer):
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
@@ -120,11 +161,9 @@ Derleyip yayınlayın:
 npm run deploy     # opennextjs-cloudflare build && deploy
 ```
 
-Worker'ı alan adına bağlamak için Cloudflare panelinde **Workers & Pages → karsuseal → Settings → Domains & Routes → Add custom domain** (`karsuseal.com` ve `www.karsuseal.com`).
-
 Yayından önce yerelde Workers çalışma ortamında denemek için: `npm run preview` (gizli değerler için `.dev.vars` dosyası kullanılır).
 
-> Not: OpenNext derlemesi Windows'ta çalışıyor ancak resmi olarak WSL veya Linux/macOS önerilir. Cloudflare panelindeki **Workers Builds** (GitHub bağlantısı) ile de otomatik derleme yapılabilir; bu durumda `NEXT_PUBLIC_*` değerlerini "Build variables" olarak girin.
+> Not: OpenNext derlemesi Windows'ta çalışıyor ancak resmi olarak WSL veya Linux/macOS önerilir.
 
 ## 5. Katalog yönetimi
 

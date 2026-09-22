@@ -23,7 +23,12 @@
 - [x] Ana sayfadaki hero üst etiketini (badge) tamamen kaldır (sayfa, panel alanı, varsayılan içerik)
 - [x] Yeni logo ikonu: yuvarlak köşeli kare içinde tırtıklı halka (yazı aynı kaldı); tüm SVG/PNG varyantları, favicon, site logosu ve paylaşım görselleri yenilendi
 
+- [x] Cloudflare yayın rehberi: GitHub + Workers Builds ile workers.dev üzerinde ilk yayın (README 4. bölüm)
+
 ## Sizin tarafınızda
+
+- [ ] Cloudflare Workers Builds ile ilk yayın (README → 4. Cloudflare'e yayınlama → A)
+- [ ] Supabase: `search_text` sütununu ekle (README → 4 → A, adım 1)
 
 - [ ] Supabase projesini açıp iki migration dosyasını + seed'i çalıştırmak, ilk yöneticiyi eklemek, `npm run check:setup`
 - [ ] Gerçek iletişim bilgilerini panelden girmek
