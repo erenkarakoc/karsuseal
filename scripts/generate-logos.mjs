@@ -37,35 +37,48 @@ export const COLORS = {
 };
 
 // ---------------------------------------------------------------------------
-// Icon: a closed seal ring holding a drop that is split into two faces
-// (rotating + stationary face of a mechanical seal). 48 × 48 grid.
+// Icon: a knurled seal ring inside a rounded square; the ring holds a seal face
+// with a drop in its centre. 48 × 48 grid.
 // ---------------------------------------------------------------------------
 const ICON = 48;
-const ring = { cx: 24, cy: 24, r: 18.75, stroke: 5.5 };
+const f3 = (n) => +n.toFixed(3);
+const circle = (cx, cy, r, sweep = 0) =>
+  `M${f3(cx - r)} ${cy}a${r} ${r} 0 1 ${sweep} ${f3(r * 2)} 0a${r} ${r} 0 1 ${sweep} ${f3(-r * 2)} 0Z`;
 
-function dropPaths() {
-  const cx = 24, cy = 28.5, r = 7.5, tipY = 12.5, gap = 1.25; // gap = half interface width
-  const d = cy - tipY;
-  const t = Math.asin(r / d);
-  const tx = r * Math.cos(t), ty = r * Math.sin(t);
-  const yTop = cy - gap, yBot = cy + gap;
-  const hx = Math.sqrt(r * r - gap * gap);
-  const f = (n) => +n.toFixed(3);
-  const top = `M${cx} ${tipY}L${f(cx + tx)} ${f(cy - ty)}A${r} ${r} 0 0 1 ${f(cx + hx)} ${f(yTop)}L${f(cx - hx)} ${f(yTop)}A${r} ${r} 0 0 1 ${f(cx - tx)} ${f(cy - ty)}Z`;
-  const bottom = `M${f(cx + hx)} ${f(yBot)}A${r} ${r} 0 0 1 ${f(cx - hx)} ${f(yBot)}Z`;
-  return top + bottom;
+function knurl(cx, cy, ro, ri, teeth, tw = 0.3) {
+  let d = "";
+  for (let i = 0; i < teeth; i++) {
+    const a = (i * 2 * Math.PI) / teeth, s = Math.PI / teeth;
+    [[ri, a - s * (tw + 0.2)], [ro, a - s * tw], [ro, a + s * tw], [ri, a + s * (tw + 0.2)]].forEach(([r, t], j) => {
+      d += (i === 0 && j === 0 ? "M" : "L") + f3(cx + r * Math.cos(t)) + " " + f3(cy + r * Math.sin(t));
+    });
+  }
+  return d + "Z";
 }
 
-const ringPath = (() => {
-  // ring as a filled annulus so the file has no strokes (scales predictably)
-  const ro = ring.r + ring.stroke / 2, ri = ring.r - ring.stroke / 2, { cx, cy } = ring;
-  return `M${cx - ro} ${cy}a${ro} ${ro} 0 1 0 ${ro * 2} 0a${ro} ${ro} 0 1 0 ${-ro * 2} 0Z` +
-    `M${cx - ri} ${cy}a${ri} ${ri} 0 1 1 ${ri * 2} 0a${ri} ${ri} 0 1 1 ${-ri * 2} 0Z`;
-})();
-const DROP = dropPaths();
+function dropPath(cx, top, w, h) {
+  const r = w / 2, by = top + h - r;
+  return `M${cx} ${top}C${cx} ${top} ${f3(cx + r)} ${f3(by - r * 0.9)} ${f3(cx + r)} ${f3(by)}` +
+    `A${r} ${r} 0 0 1 ${f3(cx - r)} ${f3(by)}C${f3(cx - r)} ${f3(by - r * 0.9)} ${cx} ${top} ${cx} ${top}Z`;
+}
 
-const iconGroup = (ringFill, dropFill, dx = 0, dy = 0, scale = 1) =>
-  `<g transform="translate(${dx} ${dy}) scale(${scale})"><path fill="${ringFill}" fill-rule="evenodd" d="${ringPath}"/><path fill="${dropFill}" d="${DROP}"/></g>`;
+const G = { inset: 1.5, radius: 14.25, ringOuter: 18.75, ringInner: 15.75, teeth: 18, hole: 11.625, disc: 8.625 };
+const squarePath = (() => {
+  const a = G.inset, b = ICON - G.inset, r = G.radius;
+  return `M${a + r} ${a}H${b - r}A${r} ${r} 0 0 1 ${b} ${a + r}V${b - r}A${r} ${r} 0 0 1 ${b - r} ${b}H${a + r}A${r} ${r} 0 0 1 ${a} ${b - r}V${a + r}A${r} ${r} 0 0 1 ${a + r} ${a}Z`;
+})();
+const ringPath = knurl(24, 24, G.ringOuter, G.ringInner, G.teeth) + circle(24, 24, G.hole);
+const DISC = circle(24, 24, G.disc);
+const DROP = dropPath(24, 18.375, 6.75, 10.875);
+// Single-colour version: ring and drop are cut out of the square (evenodd)
+const MONO = squarePath + ringPath + DROP;
+
+// scheme: { square, ring, disc, drop } colours, or { mono } for the knocked-out single colour mark
+const iconBody = (c) =>
+  c.mono
+    ? `<path fill="${c.mono}" fill-rule="evenodd" d="${MONO}"/>`
+    : `<path fill="${c.square}" d="${squarePath}"/><path fill="${c.ring}" fill-rule="evenodd" d="${ringPath}"/><path fill="${c.disc}" d="${DISC}"/><path fill="${c.drop}" d="${DROP}"/>`;
+const iconGroup = (c, dx = 0, dy = 0, scale = 1) => `<g transform="translate(${dx} ${dy}) scale(${scale})">${iconBody(c)}</g>`;
 
 // ---------------------------------------------------------------------------
 // Text → outlined path
@@ -142,18 +155,23 @@ const write = (name, content) => {
 };
 
 // Colour schemes for every variant
+const ICONS = {
+  light: { square: COLORS.navy, ring: COLORS.white, disc: COLORS.blueOnDark, drop: COLORS.white },
+  dark: { square: COLORS.blue, ring: COLORS.white, disc: COLORS.navy, drop: COLORS.white },
+  blue: { square: COLORS.blue, ring: COLORS.white, disc: COLORS.navy, drop: COLORS.white },
+};
 const schemes = {
-  light: { ring: COLORS.navy, drop: COLORS.blue, karsu: COLORS.navy, seal: COLORS.blue, tag: COLORS.navy },
-  dark: { ring: COLORS.white, drop: COLORS.blueOnDark, karsu: COLORS.white, seal: COLORS.blueOnDark, tag: COLORS.white },
-  "mono-black": { ring: COLORS.black, drop: COLORS.black, karsu: COLORS.black, seal: COLORS.black, tag: COLORS.black },
-  "mono-white": { ring: COLORS.white, drop: COLORS.white, karsu: COLORS.white, seal: COLORS.white, tag: COLORS.white },
+  light: { icon: ICONS.light, karsu: COLORS.navy, seal: COLORS.blue, tag: COLORS.navy },
+  dark: { icon: ICONS.dark, karsu: COLORS.white, seal: COLORS.blueOnDark, tag: COLORS.white },
+  "mono-black": { icon: { mono: COLORS.black }, karsu: COLORS.black, seal: COLORS.black, tag: COLORS.black },
+  "mono-white": { icon: { mono: COLORS.white }, karsu: COLORS.white, seal: COLORS.white, tag: COLORS.white },
 };
 
 console.log("Karsu Seal logo variants → public/brand/");
 
 for (const [key, c] of Object.entries(schemes)) {
   // 1) Icon only
-  write(`karsu-seal-icon-${key}.svg`, svg(ICON, ICON, iconGroup(c.ring, c.drop), "Karsu Seal"));
+  write(`karsu-seal-icon-${key}.svg`, svg(ICON, ICON, iconGroup(c.icon), "Karsu Seal"));
 
   // 2) Horizontal lockup: icon + wordmark, text optically centred on the ring
   {
@@ -163,7 +181,7 @@ for (const [key, c] of Object.entries(schemes)) {
     const baseline = ICON / 2 + textH / 2 - (probe.box.maxY) ;
     const wm = wordmark(ICON + gap, baseline, c.karsu, c.seal);
     const w = wm.box.maxX + 0.5;
-    write(`karsu-seal-logo-horizontal-${key}.svg`, svg(w, ICON, iconGroup(c.ring, c.drop) + wm.svg, "Karsu Seal"));
+    write(`karsu-seal-logo-horizontal-${key}.svg`, svg(w, ICON, iconGroup(c.icon) + wm.svg, "Karsu Seal"));
 
     // 2b) Horizontal lockup with tagline under the wordmark
     const tagSize = 7.2;
@@ -174,7 +192,7 @@ for (const [key, c] of Object.entries(schemes)) {
     const wm2 = wordmark(x0, wmBase, c.karsu, c.seal);
     const tag = tagline(x0 + 0.6, wmBase + 14.5, c.tag, tagSize);
     const w2 = Math.max(wm2.box.maxX, tag.box.maxX) + 0.5;
-    write(`karsu-seal-logo-tagline-${key}.svg`, svg(w2, H, iconGroup(c.ring, c.drop, 0, 0, iconScale) + wm2.svg + tag.svg, "Karsu Seal — Mekanik Sızdırmazlık Çözümleri"));
+    write(`karsu-seal-logo-tagline-${key}.svg`, svg(w2, H, iconGroup(c.icon, 0, 0, iconScale) + wm2.svg + tag.svg, "Karsu Seal — Mekanik Sızdırmazlık Çözümleri"));
   }
 
   // 3) Stacked lockup: icon above centred wordmark
@@ -186,7 +204,7 @@ for (const [key, c] of Object.entries(schemes)) {
     const baseline = iconSize + 14 - probe.box.minY;
     const wm = wordmark((w - tw) / 2 - probe.box.minX, baseline, c.karsu, c.seal);
     const h = wm.box.maxY + 0.5;
-    write(`karsu-seal-logo-stacked-${key}.svg`, svg(w, h, iconGroup(c.ring, c.drop, (w - iconSize) / 2, 0, iconSize / ICON) + wm.svg, "Karsu Seal"));
+    write(`karsu-seal-logo-stacked-${key}.svg`, svg(w, h, iconGroup(c.icon, (w - iconSize) / 2, 0, iconSize / ICON) + wm.svg, "Karsu Seal"));
   }
 
   // 4) Wordmark only
@@ -197,20 +215,26 @@ for (const [key, c] of Object.entries(schemes)) {
   }
 }
 
-// 5) App icon / favicon: white mark on the brand blue rounded square
-{
-  const s = 512, pad = 88, scale = (s - pad * 2) / ICON;
-  const body = `<rect width="${s}" height="${s}" rx="112" fill="${COLORS.blue}"/>` + iconGroup(COLORS.white, COLORS.white, pad, pad, scale);
-  write("karsu-seal-app-icon.svg", svg(s, s, body, "Karsu Seal"));
-  const body2 = `<rect width="${s}" height="${s}" rx="112" fill="${COLORS.navy}"/>` + iconGroup(COLORS.white, COLORS.blueOnDark, pad, pad, scale);
-  write("karsu-seal-app-icon-navy.svg", svg(s, s, body2, "Karsu Seal"));
-}
+// 5) App icon: the square of the mark fills the whole canvas
+const appIcon = (size, rx, c, ringRadius = G.ringOuter * (size / (ICON - G.inset * 2))) => {
+  const k = ringRadius / G.ringOuter, o = size / 2 - 24 * k;
+  return svg(size, size,
+    `<rect width="${size}" height="${size}" rx="${rx}" fill="${c.square}"/>` +
+    `<g transform="translate(${f3(o)} ${f3(o)}) scale(${f3(k)})"><path fill="${c.ring}" fill-rule="evenodd" d="${ringPath}"/><path fill="${c.disc}" d="${DISC}"/><path fill="${c.drop}" d="${DROP}"/></g>`,
+    "Karsu Seal");
+};
+const APP_RX = f3(G.radius * (512 / (ICON - G.inset * 2)));
+write("karsu-seal-app-icon.svg", appIcon(512, APP_RX, ICONS.blue));
+write("karsu-seal-app-icon-navy.svg", appIcon(512, APP_RX, ICONS.light));
 
 // 6) Adaptive favicon: follows the OS colour scheme
 {
-  const body = `<style>.r{fill:${COLORS.navy}}.d{fill:${COLORS.blue}}@media (prefers-color-scheme:dark){.r{fill:${COLORS.white}}.d{fill:${COLORS.blueOnDark}}}</style>` +
-    `<path class="r" fill-rule="evenodd" d="${ringPath}"/><path class="d" d="${DROP}"/>`;
+  const body = `<style>.s{fill:${COLORS.navy}}.c{fill:${COLORS.blueOnDark}}@media (prefers-color-scheme:dark){.s{fill:${COLORS.blue}}.c{fill:${COLORS.navy}}}</style>` +
+    `<path class="s" d="${squarePath}"/><path fill="${COLORS.white}" fill-rule="evenodd" d="${ringPath}"/><path class="c" d="${DISC}"/><path fill="${COLORS.white}" d="${DROP}"/>`;
   write("karsu-seal-favicon.svg", svg(ICON, ICON, body, "Karsu Seal"));
+  // Next.js file-convention favicon
+  fs.copyFileSync(path.join(outDir, "karsu-seal-favicon.svg"), path.join(root, "src", "app", "icon.svg"));
+  console.log("  ✓ src/app/icon.svg");
 }
 
 // 7) PNG icons for the web app manifest, iOS home screen and social previews
@@ -219,15 +243,14 @@ for (const [key, c] of Object.entries(schemes)) {
   const png = (svgText, size) => new Resvg(svgText, { fitTo: { mode: "width", value: size } }).render().asPng();
   const pngDir = path.join(outDir, "png");
   fs.mkdirSync(pngDir, { recursive: true });
-  const square = (s, rx, bg, pad) =>
-    svg(s, s, `<rect width="${s}" height="${s}" rx="${rx}" fill="${bg}"/>` + iconGroup(COLORS.white, COLORS.white, pad, pad, (s - pad * 2) / ICON), "Karsu Seal");
   const outputs = [
-    ["icon-192.png", square(512, 112, COLORS.blue, 88), 192],
-    ["icon-512.png", square(512, 112, COLORS.blue, 88), 512],
-    // maskable: full-bleed background, mark inside the 80% safe zone
-    ["icon-maskable-512.png", square(512, 0, COLORS.blue, 128), 512],
-    ["apple-touch-icon.png", square(512, 0, COLORS.blue, 104), 180],
-    ["favicon-48.png", svg(ICON, ICON, iconGroup(COLORS.navy, COLORS.blue), "Karsu Seal"), 48],
+    ["icon-192.png", appIcon(512, APP_RX, ICONS.light), 192],
+    ["icon-512.png", appIcon(512, APP_RX, ICONS.light), 512],
+    // maskable: full-bleed background, ring inside the 80% safe zone
+    ["icon-maskable-512.png", appIcon(512, 0, ICONS.light, 180), 512],
+    // iOS rounds the corners itself
+    ["apple-touch-icon.png", appIcon(512, 0, ICONS.light), 180],
+    ["favicon-48.png", svg(ICON, ICON, iconGroup(ICONS.light), "Karsu Seal"), 48],
     ["logo-horizontal-light.png", fs.readFileSync(path.join(outDir, "karsu-seal-logo-horizontal-light.svg"), "utf8"), 1200],
   ];
   for (const [name, text, size] of outputs) {
@@ -243,8 +266,11 @@ for (const [key, c] of Object.entries(schemes)) {
 fs.writeFileSync(
   path.join(root, "src", "components", "brand", "logo-paths.ts"),
   `// Generated by scripts/generate-logos.mjs — do not edit by hand.\n` +
+    `export const SQUARE_PATH = ${JSON.stringify(squarePath)};\n` +
     `export const RING_PATH = ${JSON.stringify(ringPath)};\n` +
+    `export const DISC_PATH = ${JSON.stringify(DISC)};\n` +
     `export const DROP_PATH = ${JSON.stringify(DROP)};\n` +
+    `export const MONO_PATH = ${JSON.stringify(MONO)};\n` +
     (() => {
       const probe = wordmark(0, 0, "", "");
       const wm = wordmark(-probe.box.minX, -probe.box.minY, "", "");

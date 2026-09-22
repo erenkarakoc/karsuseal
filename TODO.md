@@ -21,6 +21,7 @@
 - [x] Sektörler, hizmetler, kurumsal vb. içerik sayfaları için admin panelinde düzenleme sayfası (/admin/icerik)
 - [x] Admin panelinde "Ana sayfa" sayfası: ana sayfadaki bölümler özelleştirilebilsin (/admin/icerik/ana-sayfa)
 - [x] Ana sayfadaki hero üst etiketini (badge) tamamen kaldır (sayfa, panel alanı, varsayılan içerik)
+- [x] Yeni logo ikonu: yuvarlak köşeli kare içinde tırtıklı halka (yazı aynı kaldı); tüm SVG/PNG varyantları, favicon, site logosu ve paylaşım görselleri yenilendi
 
 ## Sizin tarafınızda
 

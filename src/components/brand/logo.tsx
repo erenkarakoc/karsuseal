@@ -1,4 +1,4 @@
-import { DROP_PATH, RING_PATH, WORDMARK } from "./logo-paths";
+import { DISC_PATH, DROP_PATH, MONO_PATH, RING_PATH, SQUARE_PATH, WORDMARK } from "./logo-paths";
 
 type Props = {
   className?: string;
@@ -9,20 +9,24 @@ type Props = {
 };
 
 const TONES = {
-  auto: { ring: "fill-[#0B1F3F] dark:fill-white", drop: "fill-[#1D5FD1] dark:fill-[#5B97F7]", karsu: "fill-[#0B1F3F] dark:fill-white", seal: "fill-[#1D5FD1] dark:fill-[#5B97F7]" },
-  light: { ring: "fill-[#0B1F3F]", drop: "fill-[#1D5FD1]", karsu: "fill-[#0B1F3F]", seal: "fill-[#1D5FD1]" },
-  dark: { ring: "fill-white", drop: "fill-[#5B97F7]", karsu: "fill-white", seal: "fill-[#5B97F7]" },
-  mono: { ring: "fill-current", drop: "fill-current", karsu: "fill-current", seal: "fill-current" },
+  auto: { square: "fill-[#0B1F3F] dark:fill-[#1D5FD1]", disc: "fill-[#5B97F7] dark:fill-[#0B1F3F]", karsu: "fill-[#0B1F3F] dark:fill-white", seal: "fill-[#1D5FD1] dark:fill-[#5B97F7]" },
+  light: { square: "fill-[#0B1F3F]", disc: "fill-[#5B97F7]", karsu: "fill-[#0B1F3F]", seal: "fill-[#1D5FD1]" },
+  dark: { square: "fill-[#1D5FD1]", disc: "fill-[#0B1F3F]", karsu: "fill-white", seal: "fill-[#5B97F7]" },
+  mono: null,
 };
 
 /** Karsu Seal logo, drawn from the same outlines as the files in /public/brand. */
 export function Logo({ className, tone = "auto", variant = "horizontal", title = "Karsu Seal" }: Props) {
-  const t = TONES[tone];
-  const icon = (
+  const t = TONES[tone] ?? { karsu: "fill-current", seal: "fill-current" };
+  const icon = TONES[tone] ? (
     <>
-      <path className={t.ring} fillRule="evenodd" d={RING_PATH} />
-      <path className={t.drop} d={DROP_PATH} />
+      <path className={TONES[tone].square} d={SQUARE_PATH} />
+      <path className="fill-white" fillRule="evenodd" d={RING_PATH} />
+      <path className={TONES[tone].disc} d={DISC_PATH} />
+      <path className="fill-white" d={DROP_PATH} />
     </>
+  ) : (
+    <path className="fill-current" fillRule="evenodd" d={MONO_PATH} />
   );
   if (variant === "icon") {
     return (

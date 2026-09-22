@@ -18,9 +18,9 @@ const SCHEMES = [
   { key: "mono-white", label: "Tek renk beyaz", bg: "bg-[#1D5FD1]" },
 ];
 const COLORS = [
-  { name: "Karsu Lacivert", hex: "#0B1F3F", rgb: "11 31 63", use: "Ana marka rengi, logo halkası ve yazı" },
-  { name: "Karsu Mavi", hex: "#1D5FD1", rgb: "29 95 209", use: "Damla, vurgu ve butonlar" },
-  { name: "Koyu Zemin Mavisi", hex: "#5B97F7", rgb: "91 151 247", use: "Koyu zeminde vurgu" },
+  { name: "Karsu Lacivert", hex: "#0B1F3F", rgb: "11 31 63", use: "Ana marka rengi, ikon karesi ve yazı" },
+  { name: "Karsu Mavi", hex: "#1D5FD1", rgb: "29 95 209", use: "Seal yazısı, vurgu ve butonlar; koyu zeminde ikon karesi" },
+  { name: "Koyu Zemin Mavisi", hex: "#5B97F7", rgb: "91 151 247", use: "İkonun iç yüzeyi, koyu zeminde vurgu" },
   { name: "Beyaz", hex: "#FFFFFF", rgb: "255 255 255", use: "Zemin ve koyu zeminde logo" },
 ];
 

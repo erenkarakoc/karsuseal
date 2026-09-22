@@ -10,7 +10,7 @@ import path from "node:path";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 import { categories, products } from "../src/data/catalog.mjs";
-import { DROP_PATH, RING_PATH, WORDMARK } from "../src/components/brand/logo-paths.ts";
+import { DISC_PATH, DROP_PATH, RING_PATH, SQUARE_PATH, WORDMARK } from "../src/components/brand/logo-paths.ts";
 
 const root = path.resolve(import.meta.dirname, "..");
 const out = path.join(root, "public", "og");
@@ -33,8 +33,10 @@ const slugify = (t) => t.toLocaleLowerCase("tr").replace(/[ığüşöç]/g, (c) 
 function logo() {
   const hgt = 56, w = (59 + WORDMARK.width) * (hgt / 48);
   return h("svg", { width: w, height: hgt, viewBox: `0 0 ${59 + WORDMARK.width} 48` },
+    h("path", { fill: BLUE, d: SQUARE_PATH }),
     h("path", { fill: "#ffffff", fillRule: "evenodd", d: RING_PATH }),
-    h("path", { fill: "#5B97F7", d: DROP_PATH }),
+    h("path", { fill: NAVY, d: DISC_PATH }),
+    h("path", { fill: "#ffffff", d: DROP_PATH }),
     h("g", { transform: `translate(59 ${24 - WORDMARK.height / 2})` },
       h("path", { fill: "#ffffff", d: WORDMARK.karsu }),
       h("path", { fill: "#5B97F7", d: WORDMARK.seal })));

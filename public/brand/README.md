@@ -5,9 +5,11 @@ Yeniden üretmek için: `npm run brand:logos` (kaynak: `scripts/generate-logos.m
 
 ## Konsept
 
-Kapalı bir sızdırmazlık halkası ve içinde, ortasından ikiye ayrılmış bir damla. Halka salmastrayı, damla
-sızdırılmayan akışkanı, damlanın ortasındaki ince boşluk ise mekanik salmastranın birbirine temas eden
-dönen ve sabit yüzeylerini temsil eder. İkon 48 × 48 birimlik ızgara üzerine çizilmiştir.
+Yuvarlatılmış köşeli bir kare içinde tırtıklı (dişli) bir sızdırmazlık halkası; halkanın ortasında salmastra
+yüzeyi ve bir damla. Tırtıklı halka mekanik parçayı, iç yüzey salmastranın temas yüzeyini, damla ise
+sızdırılmayan akışkanı temsil eder. İkon 48 × 48 birimlik ızgara üzerine çizilmiştir; yazı ("Karsu Seal") değişmedi.
+
+Tek renk (mono) sürümlerde halka ve damla karenin içinden boşluk olarak kesilir, böylece her zeminde okunur.
 
 ## Varyantlar
 
