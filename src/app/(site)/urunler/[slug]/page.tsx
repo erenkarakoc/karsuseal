@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { CategorySidebar } from "@/components/site/category-sidebar";
 import { CtaBand, PageHero, ProductGrid } from "@/components/site/ui";
 import { getCategoryBySlug, getCategoryTree, getProductsForCategory } from "@/lib/catalog";
-import { imageFor } from "@/lib/images";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -15,7 +14,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: data.category.name,
     description: data.category.summary ?? undefined,
-    openGraph: { images: [imageFor(data.category)] },
   };
 }
 

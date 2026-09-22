@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const p = await getProductBySlug(slug);
   if (!p) return {};
-  return { title: p.name, description: p.summary ?? undefined, openGraph: { images: [imageFor(p)] } };
+  return { title: p.name, description: p.summary ?? undefined };
 }
 
 const SPEC_ICON = (label: string) => {
