@@ -12,7 +12,6 @@ export type HomeContent = {
   order: HomeSection[];
   hidden: HomeSection[];
   hero: {
-    badge: string;
     titleStart: string;
     titleHighlight: string;
     titleEnd: string;
@@ -66,7 +65,6 @@ export const DEFAULT_CONTENT: ContentMap = {
     order: [...HOME_SECTIONS],
     hidden: [],
     hero: {
-      badge: "Mekanik sızdırmazlık çözümleri",
       titleStart: "Sızdırmazlıkta",
       titleHighlight: "doğru parça",
       titleEnd: ", doğru zamanda.",

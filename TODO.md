@@ -20,6 +20,7 @@
 - [x] Ürün illüstrasyonlarında ürünleri görselin tam ortasına hizala (ölçülen sınırlara göre ortalama + ortak boyut)
 - [x] Sektörler, hizmetler, kurumsal vb. içerik sayfaları için admin panelinde düzenleme sayfası (/admin/icerik)
 - [x] Admin panelinde "Ana sayfa" sayfası: ana sayfadaki bölümler özelleştirilebilsin (/admin/icerik/ana-sayfa)
+- [x] Ana sayfadaki hero üst etiketini (badge) tamamen kaldır (sayfa, panel alanı, varsayılan içerik)
 
 ## Sizin tarafınızda
 

@@ -127,12 +127,7 @@ function Hero({ hero }: { hero: HomeContent["hero"] }) {
       <div className="absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_70%_40%,black,transparent_70%)]" aria-hidden />
       <div className="relative container-page grid items-center gap-12 py-14 md:py-20 lg:grid-cols-12 lg:py-24">
         <div className="lg:col-span-6">
-          {hero.badge && (
-            <p className="inline-flex items-center gap-x-2 rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700 dark:border-primary-800 dark:bg-primary-950/60 dark:text-primary-200">
-              <span className="size-1.5 rounded-full bg-primary" /> {hero.badge}
-            </p>
-          )}
-          <h1 className="mt-5 text-4xl font-semibold leading-[1.05] text-foreground sm:text-5xl lg:text-6xl">
+          <h1 className="text-4xl font-semibold leading-[1.05] text-foreground sm:text-5xl lg:text-6xl">
             {hero.titleStart} {hero.titleHighlight && <span className="text-primary">{hero.titleHighlight}</span>}
             {hero.titleEnd}
           </h1>

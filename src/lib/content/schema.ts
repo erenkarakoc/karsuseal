@@ -54,7 +54,6 @@ export const PAGE_SCHEMAS: PageSchema[] = [
         key: "hero",
         label: "Giriş bölümü (hero)",
         fields: [
-          { type: "text", key: "badge", label: "Üst etiket" },
           { type: "text", key: "titleStart", label: "Başlık — başı" },
           { type: "text", key: "titleHighlight", label: "Başlık — vurgulu kısım (mavi)" },
           { type: "text", key: "titleEnd", label: "Başlık — sonu", hint: "Noktalama işaretiyle başlıyorsa boşluk bırakmayın, ör. \", doğru zamanda.\"" },
