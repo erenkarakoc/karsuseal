@@ -14,7 +14,8 @@
     "brand:logos": "node scripts/generate-logos.mjs",
     "brand:illustrations": "node scripts/generate-illustrations.mjs",
     "seed:build": "node scripts/build-seed.mjs",
-    "vapid": "node scripts/generate-vapid.mjs"
+    "vapid": "node scripts/generate-vapid.mjs",
+    "check:setup": "node scripts/check-supabase.mjs"
   },
   "dependencies": {
     "@pushforge/builder": "^2.0.5",

@@ -56,6 +56,12 @@ npm run dev                  # http://localhost:3000
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — publishable key (`sb_publishable_…`, eski adı anon key)
    - `SUPABASE_SECRET_KEY` — secret key (`sb_secret_…`, eski adı service_role). **Yalnızca sunucuda** kullanılır.
 
+7. Kurulumu doğrulayın:
+   ```bash
+   npm run check:setup          # .env.local; canlı için: npm run check:setup -- --env .env.production
+   ```
+   Tablolar, seed, erişim kuralları (RLS), storage, form kaydı ve ortam değişkenleri kontrol edilir; yalnızca bir test talebi ekleyip hemen siler.
+
 ## 3. Bildirimler (ücretsiz)
 
 **Tarayıcı bildirimleri** — Web Push standardı, üçüncü taraf servis gerekmez:
@@ -151,3 +157,4 @@ Mekanik salmastraların çalışma limitleri (mil çapı, basınç, sıcaklık, 
 | `npm run brand:logos` | Logo SVG'lerini üret |
 | `npm run brand:illustrations` | Standart ürün görsellerini üret |
 | `npm run vapid` | Web Push anahtar çifti üret |
+| `npm run check:setup` | Supabase ve ortam değişkenleri kurulum kontrolü |
