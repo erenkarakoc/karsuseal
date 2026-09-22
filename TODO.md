@@ -9,7 +9,7 @@
 - [x] Cloudflare Turnstile spam koruması (anahtar tanımlıysa devreye girer)
 - [x] Silinen / değiştirilen görselleri Supabase Storage'dan da sil
 - [x] Supabase kurulum kontrol betiği (tablolar, seed, RLS, storage, form kaydı)
-- [ ] Yer tutucu içerik: canlıda sahte telefon/adres gösterilmesin, panelde eksik bilgi uyarısı
+- [x] Yer tutucu içerik: canlıda sahte telefon/adres gösterilmesin, panelde eksik bilgi uyarısı
 - [ ] Teknik veri kaynak listesi (hangi değer nereden, hangisi tahmini)
 - [ ] Cloudflare Workers derlemesiyle son doğrulama ve commit
 - [x] TODO.md çalışma kuralını CLAUDE.md ve AGENTS.md'ye ekle
@@ -25,6 +25,6 @@
 - [ ] Supabase projesini açıp migration + seed'i çalıştırmak, ilk yöneticiyi eklemek
 - [ ] Gerçek iletişim bilgilerini panelden girmek
 - [ ] KVKK metnini hukukçuya kontrol ettirmek
-- [ ] Ana sayfadaki vaatleri ("aynı gün teklif" vb.) gözden geçirmek
+- [ ] Vaat ifadelerini gözden geçirmek (içerik yönetimi gelince panelden düzenlenebilecek): "stoktan aynı gün sevk" (`src/data/site.ts` stok-tedarik), "aynı iş günü teklif" (`src/app/(site)/teklif-al/page.tsx`), "stoktan hızlı sevk" (ana sayfa süreç adımları)
 - [ ] Teknik değerleri tedarikçi föyleriyle karşılaştırmak
 - [ ] Ürün fotoğraflarını panelden yüklemek

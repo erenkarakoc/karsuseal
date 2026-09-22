@@ -129,7 +129,9 @@ export async function searchProducts(query: string, limit = 40): Promise<Product
 }
 
 export const getPublicSettings = cache(async (): Promise<PublicSettings> => {
-  const fallback: PublicSettings = {
+  // Local preview only: sample values so the layout can be reviewed without a database.
+  // With Supabase, only what the admin entered is shown; empty fields are simply hidden.
+  const preview: PublicSettings = {
     company_phone: "+90 (000) 000 00 00",
     company_whatsapp: null,
     company_email: "info@karsuseal.com",
@@ -137,10 +139,10 @@ export const getPublicSettings = cache(async (): Promise<PublicSettings> => {
     company_maps_url: null,
     working_hours: "Hafta içi 08:30 – 18:00",
   };
-  if (!isSupabaseConfigured()) return fallback;
+  if (!isSupabaseConfigured()) return preview;
   const { data } = await createPublicClient().from("public_settings").select("*").maybeSingle();
-  if (!data) return fallback;
-  return Object.fromEntries(Object.entries(fallback).map(([k, v]) => [k, (data as Record<string, string | null>)[k] || v])) as PublicSettings;
+  const row = (data ?? {}) as Record<string, string | null>;
+  return Object.fromEntries(Object.keys(preview).map((k) => [k, row[k]?.trim() || null])) as PublicSettings;
 });
 
 export async function getAllProductSlugs(): Promise<{ slug: string; updated_at: string }[]> {

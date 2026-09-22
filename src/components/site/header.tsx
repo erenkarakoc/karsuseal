@@ -17,10 +17,14 @@ export async function Header() {
       {/* Top bar */}
       <div className="hidden md:block bg-primary-950 text-white/80 text-[13px]">
         <div className="container-page flex h-9 items-center justify-between gap-x-6">
-          <p className="flex items-center gap-x-2">
-            <Clock className="size-3.5" />
-            {settings.working_hours}
-          </p>
+          {settings.working_hours ? (
+            <p className="flex items-center gap-x-2">
+              <Clock className="size-3.5" />
+              {settings.working_hours}
+            </p>
+          ) : (
+            <span />
+          )}
           <div className="flex items-center gap-x-6">
             {settings.company_phone && (
               <a href={`tel:${tel}`} className="flex items-center gap-x-2 hover:text-white">

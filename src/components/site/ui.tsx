@@ -119,7 +119,7 @@ export function CtaBand() {
           <div className="md:col-span-2">
             <h2 className="text-2xl md:text-4xl font-semibold">Salmastranızın ölçüsünü bilmiyor musunuz?</h2>
             <p className="mt-3 max-w-xl text-white/70">
-              Pompa marka-modelini veya eski salmastranın fotoğrafını gönderin; muadilini belirleyip aynı gün teklif verelim.
+              Pompa marka-modelini veya eski salmastranın ölçülerini paylaşın; muadilini belirleyip hızlıca teklif verelim.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-3 md:justify-end">

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BellRing, ClipboardList, Inbox, Mail, Package } from "lucide-react";
+import { ArrowRight, BellRing, ClipboardList, Inbox, Mail, Package, TriangleAlert } from "lucide-react";
 import { Card, formatDate, KindBadge, PageTitle, StatusBadge } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/auth";
 import type { Inquiry } from "@/lib/types";
@@ -14,7 +14,7 @@ export default async function AdminHome() {
     supabase.from("inquiries").select("id", { count: "exact", head: true }).eq("kind", "quote").gte("created_at", monthStart),
     supabase.from("products").select("id", { count: "exact", head: true }),
     supabase.from("inquiries").select("*").order("created_at", { ascending: false }).limit(8),
-    supabase.from("settings").select("notification_emails, email_notifications, push_notifications").eq("id", 1).single(),
+    supabase.from("settings").select("notification_emails, email_notifications, push_notifications, company_phone, company_email, company_address").eq("id", 1).single(),
     supabase.from("push_subscriptions").select("id", { count: "exact", head: true }),
   ]);
 
@@ -24,6 +24,11 @@ export default async function AdminHome() {
     { label: "Katalogdaki ürün", value: products.count ?? 0, icon: Package, href: "/admin/urunler" },
   ];
   const emails = settings.data?.notification_emails ?? [];
+  const missingContact = [
+    !settings.data?.company_phone && "telefon",
+    !settings.data?.company_email && "e-posta",
+    !settings.data?.company_address && "adres",
+  ].filter(Boolean) as string[];
 
   return (
     <>
@@ -42,6 +47,17 @@ export default async function AdminHome() {
           </Link>
         ))}
       </div>
+
+      {missingContact.length > 0 && (
+        <Card className="mt-6 flex flex-col gap-4 border-amber-300 p-5 sm:flex-row sm:items-center dark:border-amber-800">
+          <TriangleAlert className="size-6 shrink-0 text-amber-500" />
+          <div className="flex-1 text-sm">
+            <p className="font-semibold text-foreground">Sitede iletişim bilgisi eksik</p>
+            <p className="mt-0.5 text-muted-foreground-2">Şu bilgiler girilmediği için sitede gösterilmiyor: {missingContact.join(", ")}.</p>
+          </div>
+          <Link href="/admin/ayarlar" className="inline-flex items-center gap-x-1 text-sm font-semibold text-primary hover:underline">Bilgileri gir <ArrowRight className="size-4" /></Link>
+        </Card>
+      )}
 
       {(emails.length === 0 || (pushCount.count ?? 0) === 0) && (
         <Card className="mt-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
