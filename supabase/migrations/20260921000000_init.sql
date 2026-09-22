@@ -73,6 +73,14 @@ create table public.products (
   updated_at timestamptz not null default now()
 );
 create index products_category_idx on public.products(category_id, sort_order);
+
+-- Search: code, name, summary and equivalent types in one column.
+-- array_to_string is only STABLE, so wrap it for use in a generated column.
+create or replace function public.text_array_join(arr text[])
+returns text language sql immutable parallel safe as $$ select array_to_string(arr, ' ') $$;
+alter table public.products add column search_text text generated always as (
+  code || ' ' || name || ' ' || coalesce(summary, '') || ' ' || public.text_array_join(equivalents)
+) stored;
 create index products_featured_idx on public.products(is_featured) where is_featured;
 
 -- ---------------------------------------------------------------------------

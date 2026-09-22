@@ -116,12 +116,12 @@ export async function searchProducts(query: string, limit = 40): Promise<Product
       .slice(0, limit)
       .map(toCard);
   }
-  const like = `%${q.replace(/[%_,()]/g, " ")}%`;
+  const like = `%${q.replace(/[%_\\]/g, " ")}%`;
   const { data, error } = await createPublicClient()
     .from("products")
     .select(CARD_COLUMNS)
     .eq("is_published", true)
-    .or(`code.ilike.${like},name.ilike.${like},summary.ilike.${like}`)
+    .ilike("search_text", like)
     .order("sort_order")
     .limit(limit);
   if (error) throw error;
