@@ -2,10 +2,10 @@ import Link from "next/link";
 import { Mail, MapPin, Phone, Clock } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { getCategoryTree, getPublicSettings } from "@/lib/catalog";
-import { services } from "@/data/site";
+import { getContent } from "@/lib/content";
 
 export async function Footer() {
-  const [tree, s] = await Promise.all([getCategoryTree(), getPublicSettings()]);
+  const [tree, s, { items: services }, general] = await Promise.all([getCategoryTree(), getPublicSettings(), getContent("hizmetler"), getContent("genel")]);
   const tel = s.company_phone?.replace(/[^\d+]/g, "");
   const col = "text-sm text-white/65 hover:text-white focus:outline-hidden focus:text-white";
 
@@ -15,9 +15,7 @@ export async function Footer() {
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <Logo tone="dark" className="h-10 w-auto" />
-            <p className="mt-5 max-w-sm text-sm leading-6 text-white/65">
-              Pompa, mikser ve döner ekipmanlar için mekanik salmastra, döner başlık ve sızdırmazlık ürünleri; seçim, tedarik ve revizyon hizmetleri.
-            </p>
+            <p className="mt-5 max-w-sm text-sm leading-6 text-white/65">{general.footerAbout}</p>
             <ul className="mt-6 space-y-3 text-sm text-white/80">
               {s.company_address && (
                 <li className="flex gap-x-3"><MapPin className="size-4 mt-0.5 shrink-0 text-primary-300" />{s.company_address}</li>

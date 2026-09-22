@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next";
 import { getAllProductSlugs, getCategories } from "@/lib/catalog";
 import { SITE_URL } from "@/lib/env";
-import { industries } from "@/data/site";
+import { getContent } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [categories, products] = await Promise.all([getCategories(), getAllProductSlugs()]);
+  const [categories, products, { items: industries }] = await Promise.all([getCategories(), getAllProductSlugs(), getContent("sektorler")]);
   const staticPages = ["", "/urunler", "/sektorler", "/hizmetler", "/kurumsal", "/iletisim", "/teklif-al"];
   return [
     ...staticPages.map((p) => ({ url: `${SITE_URL}${p}`, changeFrequency: "weekly" as const, priority: p === "" ? 1 : 0.7 })),

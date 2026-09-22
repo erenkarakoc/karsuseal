@@ -2,29 +2,26 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, TriangleAlert } from "lucide-react";
-import { IndustryIcon } from "@/components/site/industry-icon";
-import { CtaBand, PageHero, ProductGrid, SectionHeading } from "@/components/site/ui";
+import { ContentIcon } from "@/components/site/content-icon";
+import { PageHero, ProductGrid, SectionHeading } from "@/components/site/ui";
+import { CtaBand } from "@/components/site/cta-band";
 import { getCategories, getProductsByIndustry } from "@/lib/catalog";
 import { imageFor } from "@/lib/images";
-import { industries, industryDetails } from "@/data/site";
+import { getContent } from "@/lib/content";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export function generateStaticParams() {
-  return industries.map((i) => ({ slug: i.slug }));
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const ind = industries.find((i) => i.slug === slug);
+  const ind = (await getContent("sektorler")).items.find((i) => i.slug === slug);
   return ind ? { title: `${ind.name} Sektörü`, description: ind.summary } : {};
 }
 
 export default async function IndustryPage({ params }: Props) {
   const { slug } = await params;
-  const ind = industries.find((i) => i.slug === slug);
+  const ind = (await getContent("sektorler")).items.find((i) => i.slug === slug);
   if (!ind) notFound();
-  const detail = industryDetails[slug];
+  const detail = ind.challenges.length || ind.categories.length ? ind : null;
   const [products, categories] = await Promise.all([getProductsByIndustry(slug, 8), getCategories()]);
   const cats = (detail?.categories ?? []).map((s) => categories.find((c) => c.slug === s)).filter((c) => c !== undefined);
 
@@ -32,7 +29,7 @@ export default async function IndustryPage({ params }: Props) {
     <>
       <PageHero eyebrow="Sektör" title={ind.name} description={ind.summary} breadcrumbs={[{ href: "/sektorler", label: "Sektörler" }, { label: ind.name }]}>
         <span className="absolute end-8 top-1/2 hidden -translate-y-1/2 lg:inline-flex size-28 items-center justify-center rounded-3xl bg-primary-50 text-primary dark:bg-primary-950 dark:text-primary-300">
-          <IndustryIcon slug={slug} className="size-14" />
+          <ContentIcon name={ind.icon} className="size-14" />
         </span>
       </PageHero>
 
@@ -40,7 +37,7 @@ export default async function IndustryPage({ params }: Props) {
         <section className="container-page py-10 md:py-14">
           <div className="grid gap-10 lg:grid-cols-12">
             <div className="lg:col-span-5">
-              <h2 className="text-2xl font-semibold text-foreground">Sık karşılaşılan sorunlar</h2>
+              {detail.challenges.length > 0 && <h2 className="text-2xl font-semibold text-foreground">Sık karşılaşılan sorunlar</h2>}
               <ul className="mt-5 space-y-3">
                 {detail.challenges.map((c) => (
                   <li key={c} className="flex gap-x-3 rounded-xl border border-card-line bg-card p-4 text-sm text-foreground">

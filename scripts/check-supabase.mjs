@@ -78,6 +78,10 @@ section("Şema ve başlangıç verisi");
   error ? fail("search_text sütunu yok (eski migration)", "migration dosyasının güncel halini uygulayın") : ok("arama sütunu (muadil tipler dahil)");
 }
 {
+  const { error } = await anon.from("site_content").select("key").limit(1);
+  error ? fail(`site_content tablosu yok: ${error.message}`, "supabase/migrations/20260922000000_site_content.sql dosyasını çalıştırın") : ok("site_content (panelden düzenlenen sayfa içerikleri)");
+}
+{
   const { data, error } = await anon.from("public_settings").select("*").maybeSingle();
   if (error) fail(`public_settings görünümü okunamadı: ${error.message}`);
   else {

@@ -5,7 +5,7 @@ import { ProductForm } from "@/components/admin/product-form";
 import { PageTitle } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/auth";
 import type { Category, Product } from "@/lib/types";
-import { industries } from "@/data/site";
+import { getContent } from "@/lib/content";
 
 export const metadata = { title: "Ürün düzenle" };
 
@@ -26,7 +26,7 @@ export default async function EditProductPage({ params }: Props) {
     <>
       <Link href="/admin/urunler" className="mb-4 inline-flex items-center gap-x-1.5 text-sm text-muted-foreground-1 hover:text-foreground"><ArrowLeft className="size-4" /> Ürünler</Link>
       <PageTitle title={product ? product.name : "Yeni ürün"} />
-      <ProductForm product={product ?? undefined} categories={(cats ?? []) as Category[]} industries={industries.map(({ slug, name }) => ({ slug, name }))} />
+      <ProductForm product={product ?? undefined} categories={(cats ?? []) as Category[]} industries={(await getContent("sektorler")).items.map(({ slug, name }) => ({ slug, name }))} />
     </>
   );
 }

@@ -4,12 +4,13 @@ import { notFound } from "next/navigation";
 import { ArrowRight, CircleCheck, FileText, Gauge, Ruler, Thermometer, Zap, MoveHorizontal } from "lucide-react";
 import { AddToQuoteButton } from "@/components/site/quote-cart";
 import { ProductGallery } from "@/components/site/product-gallery";
-import { Breadcrumbs, CtaBand, ProductGrid, SectionHeading, btn } from "@/components/site/ui";
+import { Breadcrumbs, ProductGrid, SectionHeading, btn } from "@/components/site/ui";
+import { CtaBand } from "@/components/site/cta-band";
 import { getCategoryBySlug, getCategories, getProductBySlug, getRelatedProducts } from "@/lib/catalog";
 import { SITE_URL } from "@/lib/env";
 import { imageFor } from "@/lib/images";
 import { ogForProduct, ogImages } from "@/lib/og";
-import { industries } from "@/data/site";
+import { getContent } from "@/lib/content";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -42,7 +43,7 @@ export default async function ProductPage({ params }: Props) {
   const image = imageFor(product);
   const gallery = [...new Set([image, ...(product.gallery ?? [])])];
   const keySpecs = product.specs.slice(0, 4);
-  const productIndustries = industries.filter((i) => product.industries.includes(i.slug));
+  const productIndustries = (await getContent("sektorler")).items.filter((i) => product.industries.includes(i.slug));
   const displayName = product.name.replace(`${product.code} `, "");
 
   const tabs = [

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CategorySidebar } from "@/components/site/category-sidebar";
-import { CtaBand, PageHero, ProductGrid } from "@/components/site/ui";
+import { PageHero, ProductGrid } from "@/components/site/ui";
+import { CtaBand } from "@/components/site/cta-band";
 import { ogForCategory, ogImages } from "@/lib/og";
 import { getCategoryBySlug, getCategoryTree, getProductsForCategory } from "@/lib/catalog";
 

@@ -1,69 +1,23 @@
+import { Fragment } from "react";
 import Link from "next/link";
-import { ArrowRight, CircleCheck, Compass, Disc, MapPin, Package, Ruler, Wrench } from "lucide-react";
-import { btn, CtaBand, ProductGrid, SectionHeading } from "@/components/site/ui";
-import { IndustryIcon } from "@/components/site/industry-icon";
+import { ArrowRight, CircleCheck } from "lucide-react";
+import { btn, ProductGrid, SectionHeading } from "@/components/site/ui";
+import { CtaBand } from "@/components/site/cta-band";
+import { ContentIcon } from "@/components/site/content-icon";
 import { getCategoryTree, getFeaturedProducts } from "@/lib/catalog";
+import { getContent } from "@/lib/content";
+import type { HomeContent, HomeSection } from "@/lib/content/defaults";
 import { imageFor } from "@/lib/images";
-import { industries, services } from "@/data/site";
-
-const SERVICE_ICONS = { wrench: Wrench, disc: Disc, ruler: Ruler, "map-pin": MapPin, package: Package, compass: Compass } as const;
 
 export default async function HomePage() {
-  const [tree, featured] = await Promise.all([getCategoryTree(), getFeaturedProducts(8)]);
+  const [home, industries, services, tree] = await Promise.all([getContent("ana-sayfa"), getContent("sektorler"), getContent("hizmetler"), getCategoryTree()]);
+  const featured = await getFeaturedProducts(home.featured.limit);
+  const visible = home.order.filter((s) => !home.hidden.includes(s));
 
-  return (
-    <>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-surface">
-        <div className="absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_70%_40%,black,transparent_70%)]" aria-hidden />
-        <div className="relative container-page grid items-center gap-12 py-14 md:py-20 lg:grid-cols-12 lg:py-24">
-          <div className="lg:col-span-6">
-            <p className="inline-flex items-center gap-x-2 rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700 dark:border-primary-800 dark:bg-primary-950/60 dark:text-primary-200">
-              <span className="size-1.5 rounded-full bg-primary" /> Mekanik sızdırmazlık çözümleri
-            </p>
-            <h1 className="mt-5 text-4xl font-semibold leading-[1.05] text-foreground sm:text-5xl lg:text-6xl">
-              Sızdırmazlıkta <span className="text-primary">doğru parça</span>, doğru zamanda.
-            </h1>
-            <p className="mt-5 max-w-xl text-lg text-muted-foreground-2">
-              Pompa, mikser ve döner ekipmanlarınız için mekanik salmastra, kartuş salmastra, döner başlık ve sızdırmazlık ürünleri. Seçimden revizyona kadar teknik destek.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/urunler" className={btn.primary}>Ürün kataloğu <ArrowRight className="size-4" /></Link>
-              <Link href="/teklif-al" className={btn.secondary}>Teklif iste</Link>
-            </div>
-            <ul className="mt-8 grid gap-2 text-sm text-muted-foreground-2 sm:grid-cols-2">
-              {["EN 12756 ölçülerinde standart tipler", "Muadil ve OEM uyumlu salmastralar", "Revizyon ve lepleme hizmeti", "Akışkana göre malzeme seçimi"].map((t) => (
-                <li key={t} className="flex items-center gap-x-2"><CircleCheck className="size-4 shrink-0 text-primary" />{t}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="lg:col-span-6">
-            <div className="relative mx-auto max-w-xl">
-              <div className="overflow-hidden rounded-2xl border border-card-line bg-card shadow-xl">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/illustrations/seal-cartridge.svg" alt="Tek kartuş mekanik salmastra" className="w-full" />
-              </div>
-              <div className="absolute -bottom-6 -start-4 w-40 overflow-hidden rounded-xl border border-card-line bg-card shadow-lg sm:w-48 md:-start-10">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/illustrations/seal-multispring.svg" alt="Çok yaylı mekanik salmastra" className="w-full" />
-              </div>
-              <div className="absolute -top-5 -end-3 w-36 overflow-hidden rounded-xl border border-card-line bg-card shadow-lg sm:w-44 md:-end-8">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/illustrations/rotary-joint.svg" alt="Döner başlık" className="w-full" />
-              </div>
-              <div className="absolute bottom-6 end-4 hidden rounded-xl border border-card-line bg-card/95 px-4 py-3 shadow-lg backdrop-blur sm:block">
-                <p className="font-mono text-[11px] font-semibold text-primary">KS-CS · Tek kartuş</p>
-                <p className="mt-1 text-xs text-muted-foreground-2">d1 25–100 mm · ≤ 25 bar · −40…+220 °C</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Categories */}
+  const sections: Record<HomeSection, (prev?: HomeSection) => React.ReactNode> = {
+    categories: () => (
       <section className="container-page py-16 md:py-24">
-        <SectionHeading eyebrow="Ürün grupları" title="Tüm sızdırmazlık ihtiyaçlarınız tek tedarikçide" description="Standart tiplerden özel imalata kadar, akışkana ve çalışma koşullarına uygun ürünler." action={{ href: "/urunler", label: "Tüm kategoriler" }} />
+        <SectionHeading eyebrow={home.categories.eyebrow} title={home.categories.title} description={home.categories.description} action={home.categories.linkLabel ? { href: "/urunler", label: home.categories.linkLabel } : undefined} />
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 md:gap-5">
           {tree.map((c, i) => (
             <Link
@@ -83,25 +37,26 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+    ),
 
-      {/* Featured */}
-      <section className="border-y border-line-2 bg-surface py-16 md:py-24">
-        <div className="container-page">
-          <SectionHeading eyebrow="Öne çıkanlar" title="En çok talep gören ürünler" action={{ href: "/urunler/mekanik-salmastralar", label: "Mekanik salmastralar" }} />
-          <div className="mt-10">
-            <ProductGrid products={featured} />
+    featured: () =>
+      featured.length > 0 && (
+        <section className="border-y border-line-2 bg-surface py-16 md:py-24">
+          <div className="container-page">
+            <SectionHeading eyebrow={home.featured.eyebrow} title={home.featured.title} action={home.featured.link.label ? { href: home.featured.link.href, label: home.featured.link.label } : undefined} />
+            <div className="mt-10"><ProductGrid products={featured} /></div>
           </div>
-        </div>
-      </section>
+        </section>
+      ),
 
-      {/* Industries */}
+    industries: () => (
       <section className="container-page py-16 md:py-24">
-        <SectionHeading eyebrow="Sektörler" title="Her prosesin kendi sızdırmazlık sorunu var" description="Sektörünüzün akışkanlarını, standartlarını ve bakım döngülerini biliyoruz." action={{ href: "/sektorler", label: "Tüm sektörler" }} />
+        <SectionHeading eyebrow={home.industries.eyebrow} title={home.industries.title} description={home.industries.description} action={home.industries.linkLabel ? { href: "/sektorler", label: home.industries.linkLabel } : undefined} />
         <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {industries.map((ind) => (
+          {industries.items.map((ind) => (
             <Link key={ind.slug} href={`/sektorler/${ind.slug}`} className="group rounded-xl border border-card-line bg-card p-5 hover:border-primary-300 hover:bg-primary-50/40 dark:hover:border-primary-700 dark:hover:bg-primary-950/30 transition focus:outline-hidden focus:ring-2 focus:ring-primary">
               <span className="inline-flex size-10 items-center justify-center rounded-lg bg-primary-50 text-primary dark:bg-primary-950 dark:text-primary-300">
-                <IndustryIcon slug={ind.slug} className="size-5" />
+                <ContentIcon name={ind.icon} className="size-5" />
               </span>
               <h3 className="mt-4 font-display text-[15px] font-semibold text-foreground group-hover:text-primary">{ind.name}</h3>
               <p className="mt-1 text-[13px] leading-snug text-muted-foreground-1 line-clamp-3">{ind.summary}</p>
@@ -109,49 +64,121 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+    ),
 
-      {/* Services + process */}
+    services: () => (
       <section className="bg-primary-950 text-white">
         <div className="container-page py-16 md:py-24">
           <div className="grid gap-12 lg:grid-cols-12">
             <div className="lg:col-span-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-300">Hizmetler</p>
-              <h2 className="mt-2 text-2xl md:text-4xl font-semibold">Ürünün ötesinde: seçim, revizyon ve saha desteği</h2>
-              <p className="mt-4 text-white/70">Salmastra ömrünü uzatmak, arızayı kökünden çözmek ve duruş süresini kısaltmak için yanınızdayız.</p>
-              <Link href="/hizmetler" className={`${btn.ghostLight} mt-8`}>Hizmetlerimiz <ArrowRight className="size-4" /></Link>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-300">{home.services.eyebrow}</p>
+              <h2 className="mt-2 text-2xl md:text-4xl font-semibold">{home.services.title}</h2>
+              <p className="mt-4 text-white/70">{home.services.description}</p>
+              {home.services.buttonLabel && <Link href="/hizmetler" className={`${btn.ghostLight} mt-8`}>{home.services.buttonLabel} <ArrowRight className="size-4" /></Link>}
             </div>
             <div className="lg:col-span-8 grid gap-4 sm:grid-cols-2">
-              {services.map((s) => {
-                const Icon = SERVICE_ICONS[s.icon as keyof typeof SERVICE_ICONS] ?? Wrench;
-                return (
-                  <div key={s.slug} className="rounded-xl border border-white/10 bg-white/[0.04] p-5">
-                    <Icon className="size-6 text-primary-300" />
-                    <h3 className="mt-4 font-display text-lg font-semibold">{s.title}</h3>
-                    <p className="mt-1.5 text-sm text-white/65">{s.summary}</p>
-                  </div>
-                );
-              })}
+              {services.items.map((s) => (
+                <div key={s.slug} className="rounded-xl border border-white/10 bg-white/[0.04] p-5">
+                  <ContentIcon name={s.icon} className="size-6 text-primary-300" />
+                  <h3 className="mt-4 font-display text-lg font-semibold">{s.title}</h3>
+                  <p className="mt-1.5 text-sm text-white/65">{s.summary}</p>
+                </div>
+              ))}
             </div>
-          </div>
-
-          <div className="mt-16 grid gap-6 border-t border-white/10 pt-12 md:grid-cols-4">
-            {[
-              ["01", "Bilgileri paylaşın", "Pompa modeli, akışkan, basınç, sıcaklık ve mil çapı."],
-              ["02", "Doğru tipi seçelim", "Çalışma koşullarına uygun tip ve malzeme kombinasyonu."],
-              ["03", "Teklif ve tedarik", "Stoktan hızlı sevk veya ölçüye özel imalat."],
-              ["04", "Montaj ve destek", "Devreye alma, arıza analizi ve revizyon."],
-            ].map(([n, t, d]) => (
-              <div key={n}>
-                <p className="font-display text-3xl font-semibold text-primary-300">{n}</p>
-                <h3 className="mt-2 font-display font-semibold">{t}</h3>
-                <p className="mt-1 text-sm text-white/65">{d}</p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
+    ),
 
-      <CtaBand />
+    // Visually joins the services band when it directly follows it.
+    process: (prev) =>
+      home.process.steps.length > 0 && (
+        <section className="bg-primary-950 text-white">
+          <div className={`container-page ${prev === "services" ? "-mt-4 pb-16 md:-mt-8 md:pb-24" : "py-16 md:py-20"}`}>
+            <div className={`grid gap-6 md:grid-cols-4 ${prev === "services" ? "border-t border-white/10 pt-12" : ""}`}>
+              {home.process.steps.map((st, i) => (
+                <div key={i}>
+                  <p className="font-display text-3xl font-semibold text-primary-300">{String(i + 1).padStart(2, "0")}</p>
+                  <h3 className="mt-2 font-display font-semibold">{st.title}</h3>
+                  <p className="mt-1 text-sm text-white/65">{st.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      ),
+
+    cta: () => <CtaBand />,
+  };
+
+  return (
+    <>
+      <Hero hero={home.hero} />
+      {visible.map((key, i) => (
+        <Fragment key={key}>{sections[key](visible[i - 1])}</Fragment>
+      ))}
     </>
+  );
+}
+
+function Hero({ hero }: { hero: HomeContent["hero"] }) {
+  return (
+    <section className="relative overflow-hidden bg-surface">
+      <div className="absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_70%_40%,black,transparent_70%)]" aria-hidden />
+      <div className="relative container-page grid items-center gap-12 py-14 md:py-20 lg:grid-cols-12 lg:py-24">
+        <div className="lg:col-span-6">
+          {hero.badge && (
+            <p className="inline-flex items-center gap-x-2 rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700 dark:border-primary-800 dark:bg-primary-950/60 dark:text-primary-200">
+              <span className="size-1.5 rounded-full bg-primary" /> {hero.badge}
+            </p>
+          )}
+          <h1 className="mt-5 text-4xl font-semibold leading-[1.05] text-foreground sm:text-5xl lg:text-6xl">
+            {hero.titleStart} {hero.titleHighlight && <span className="text-primary">{hero.titleHighlight}</span>}
+            {hero.titleEnd}
+          </h1>
+          {hero.description && <p className="mt-5 max-w-xl text-lg text-muted-foreground-2">{hero.description}</p>}
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            {hero.primary.label && <Link href={hero.primary.href} className={btn.primary}>{hero.primary.label} <ArrowRight className="size-4" /></Link>}
+            {hero.secondary.label && <Link href={hero.secondary.href} className={btn.secondary}>{hero.secondary.label}</Link>}
+          </div>
+          {hero.bullets.length > 0 && (
+            <ul className="mt-8 grid gap-2 text-sm text-muted-foreground-2 sm:grid-cols-2">
+              {hero.bullets.map((t) => (
+                <li key={t} className="flex items-center gap-x-2"><CircleCheck className="size-4 shrink-0 text-primary" />{t}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="lg:col-span-6">
+          <div className="relative mx-auto max-w-xl">
+            {hero.mainImage && (
+              <div className="overflow-hidden rounded-2xl border border-card-line bg-card shadow-xl">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={hero.mainImage} alt="" className="aspect-[4/3] w-full object-cover" />
+              </div>
+            )}
+            {hero.sideImage1 && (
+              <div className="absolute -bottom-6 -start-4 w-40 overflow-hidden rounded-xl border border-card-line bg-card shadow-lg sm:w-48 md:-start-10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={hero.sideImage1} alt="" className="aspect-[4/3] w-full object-cover" />
+              </div>
+            )}
+            {hero.sideImage2 && (
+              <div className="absolute -top-5 -end-3 w-36 overflow-hidden rounded-xl border border-card-line bg-card shadow-lg sm:w-44 md:-end-8">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={hero.sideImage2} alt="" className="aspect-[4/3] w-full object-cover" />
+              </div>
+            )}
+            {hero.specTitle && (
+              <div className="absolute bottom-6 end-4 hidden rounded-xl border border-card-line bg-card/95 px-4 py-3 shadow-lg backdrop-blur sm:block">
+                <p className="font-mono text-[11px] font-semibold text-primary">{hero.specTitle}</p>
+                {hero.specText && <p className="mt-1 text-xs text-muted-foreground-2">{hero.specText}</p>}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

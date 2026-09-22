@@ -3,13 +3,13 @@ import { ArrowRight, ChevronDown, Mail, Menu, Moon, Phone, Search, Sun, X, Clock
 import { Logo } from "@/components/brand/logo";
 import { QuoteBadge } from "@/components/site/quote-cart";
 import { getCategoryTree, getPublicSettings } from "@/lib/catalog";
-import { industries } from "@/data/site";
+import { getContent } from "@/lib/content";
 
 const navLink =
   "py-2 md:py-0 flex items-center gap-x-1.5 font-medium text-[15px] text-navbar-nav-foreground hover:text-primary focus:outline-hidden focus:text-primary";
 
 export async function Header() {
-  const [tree, settings] = await Promise.all([getCategoryTree(), getPublicSettings()]);
+  const [tree, settings, { items: industries }, general] = await Promise.all([getCategoryTree(), getPublicSettings(), getContent("sektorler"), getContent("genel")]);
   const tel = settings.company_phone?.replace(/[^\d+]/g, "");
 
   return (
@@ -113,8 +113,8 @@ export async function Header() {
                     </div>
                     <div className="hidden md:flex md:col-span-3 flex-col justify-between rounded-xl bg-primary-950 p-6 text-white bg-[radial-gradient(circle_at_80%_0%,rgba(91,151,247,0.35),transparent_55%)]">
                       <div>
-                        <p className="font-display text-xl font-semibold leading-tight">Doğru salmastrayı birlikte seçelim</p>
-                        <p className="mt-2 text-sm text-white/70">Akışkan, basınç, sıcaklık ve mil çapını paylaşın; uygun tipi ve malzemeyi önerelim.</p>
+                        <p className="font-display text-xl font-semibold leading-tight">{general.megaMenu.title}</p>
+                        <p className="mt-2 text-sm text-white/70">{general.megaMenu.text}</p>
                       </div>
                       <div className="mt-6 flex flex-col gap-2">
                         <Link href="/urunler" className="inline-flex items-center gap-x-2 text-sm font-semibold hover:underline">

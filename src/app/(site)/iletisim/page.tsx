@@ -4,11 +4,12 @@ import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { ContactForm } from "@/components/site/forms";
 import { PageHero } from "@/components/site/ui";
 import { getPublicSettings } from "@/lib/catalog";
+import { getContent } from "@/lib/content";
 
 export const metadata: Metadata = { title: "İletişim", description: "Karsu Seal iletişim bilgileri ve iletişim formu." };
 
 export default async function ContactPage() {
-  const s = await getPublicSettings();
+  const [s, content] = await Promise.all([getPublicSettings(), getContent("iletisim")]);
   const tel = s.company_phone?.replace(/[^\d+]/g, "");
   const wa = s.company_whatsapp?.replace(/[^\d]/g, "");
   const cards = [
@@ -22,9 +23,9 @@ export default async function ContactPage() {
   return (
     <>
       <PageHero
-        eyebrow="İletişim"
-        title="Size nasıl yardımcı olabiliriz?"
-        description="Ürün seçimi, teknik destek veya sipariş için bize yazın; mesai saatleri içinde dönüş yapıyoruz."
+        eyebrow={content.intro.eyebrow}
+        title={content.intro.title}
+        description={content.intro.description}
         breadcrumbs={[{ label: "İletişim" }]}
       />
       <section className="container-page py-10 md:py-14">
@@ -53,9 +54,10 @@ export default async function ContactPage() {
           </div>
           <div className="lg:col-span-7">
             <div className="rounded-2xl border border-card-line bg-card p-5 sm:p-8">
-              <h2 className="text-2xl font-semibold text-foreground">Mesaj gönderin</h2>
+              <h2 className="text-2xl font-semibold text-foreground">{content.formTitle}</h2>
               <p className="mt-1 mb-6 text-sm text-muted-foreground-1">
-                Fiyat teklifi için <Link href="/teklif-al" className="font-medium text-primary hover:underline">teklif formunu</Link> kullanmanız daha hızlı sonuç verir.
+                {content.formNote}{" "}
+                <Link href="/teklif-al" className="font-medium text-primary hover:underline">Teklif formuna git</Link>
               </p>
               <ContactForm />
             </div>

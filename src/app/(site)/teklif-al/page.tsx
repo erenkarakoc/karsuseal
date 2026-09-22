@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import { Clock, FileSearch, Phone } from "lucide-react";
+import { Phone } from "lucide-react";
+import { ContentIcon } from "@/components/site/content-icon";
 import { QuoteForm } from "@/components/site/forms";
 import { PageHero } from "@/components/site/ui";
 import { getProductBySlug, getPublicSettings } from "@/lib/catalog";
 import { imageFor } from "@/lib/images";
+import { getContent } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Fiyat Teklifi Al",
@@ -14,7 +16,7 @@ type Props = { searchParams: Promise<{ urun?: string }> };
 
 export default async function QuotePage({ searchParams }: Props) {
   const { urun } = await searchParams;
-  const [product, settings] = await Promise.all([urun ? getProductBySlug(urun) : null, getPublicSettings()]);
+  const [product, settings, content] = await Promise.all([urun ? getProductBySlug(urun) : null, getPublicSettings(), getContent("teklif-al")]);
   const initialItem = product
     ? { product_id: product.id, slug: product.slug, code: product.code, name: product.name, image: imageFor(product) }
     : undefined;
@@ -22,12 +24,7 @@ export default async function QuotePage({ searchParams }: Props) {
 
   return (
     <>
-      <PageHero
-        eyebrow="Teklif"
-        title="Fiyat teklifi alın"
-        description="Listenizdeki ürünleri ve bildiğiniz çalışma koşullarını paylaşın; uygun tipi ve malzemeyi belirleyip size teklif gönderelim."
-        breadcrumbs={[{ label: "Teklif al" }]}
-      />
+      <PageHero eyebrow={content.intro.eyebrow} title={content.intro.title} description={content.intro.description} breadcrumbs={[{ label: "Teklif al" }]} />
       <section className="container-page py-10 md:py-14">
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-8">
@@ -36,12 +33,9 @@ export default async function QuotePage({ searchParams }: Props) {
             </div>
           </div>
           <aside className="lg:col-span-4 space-y-4">
-            {[
-              { icon: FileSearch, title: "Ölçüyü bilmiyor musunuz?", text: "Pompa etiketindeki bilgileri veya eski salmastranın ölçülerini mesajınıza yazın; gerekirse fotoğraf için size e-posta ile dönelim." },
-              { icon: Clock, title: "Hızlı dönüş", text: "Stoktaki ürünler için aynı iş günü, özel imalatlar için termin bilgisiyle birlikte teklif hazırlanır." },
-            ].map(({ icon: Icon, title, text }) => (
+            {content.cards.map(({ icon, title, text }) => (
               <div key={title} className="rounded-xl border border-card-line bg-card p-5">
-                <Icon className="size-6 text-primary" />
+                <ContentIcon name={icon} className="size-6 text-primary" />
                 <h3 className="mt-3 font-display font-semibold text-foreground">{title}</h3>
                 <p className="mt-1 text-sm text-muted-foreground-2">{text}</p>
               </div>

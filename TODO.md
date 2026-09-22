@@ -18,14 +18,14 @@
 ## Sonraki
 
 - [x] Ürün illüstrasyonlarında ürünleri görselin tam ortasına hizala (ölçülen sınırlara göre ortalama + ortak boyut)
-- [ ] Sektörler, hizmetler, kurumsal vb. içerik sayfaları için admin panelinde düzenleme sayfası
-- [ ] Admin panelinde "Ana sayfa" sayfası: ana sayfadaki bölümler özelleştirilebilsin
+- [x] Sektörler, hizmetler, kurumsal vb. içerik sayfaları için admin panelinde düzenleme sayfası (/admin/icerik)
+- [x] Admin panelinde "Ana sayfa" sayfası: ana sayfadaki bölümler özelleştirilebilsin (/admin/icerik/ana-sayfa)
 
 ## Sizin tarafınızda
 
-- [ ] Supabase projesini açıp migration + seed'i çalıştırmak, ilk yöneticiyi eklemek
+- [ ] Supabase projesini açıp iki migration dosyasını + seed'i çalıştırmak, ilk yöneticiyi eklemek, `npm run check:setup`
 - [ ] Gerçek iletişim bilgilerini panelden girmek
 - [ ] KVKK metnini hukukçuya kontrol ettirmek
-- [ ] Vaat ifadelerini gözden geçirmek (içerik yönetimi gelince panelden düzenlenebilecek): "stoktan aynı gün sevk" (`src/data/site.ts` stok-tedarik), "aynı iş günü teklif" (`src/app/(site)/teklif-al/page.tsx`), "stoktan hızlı sevk" (ana sayfa süreç adımları)
+- [ ] Vaat ifadelerini gözden geçirmek — panelden: Sayfa içerikleri → Hizmetler ("Stok ve Hızlı Tedarik": "stoktan aynı gün sevk"), Teklif al (yan kart: "aynı iş günü"), Ana sayfa → Çalışma adımları ("stoktan hızlı sevk")
 - [ ] Teknik değerleri tedarikçi föyleriyle karşılaştırmak (öncelik: `docs/teknik-veri-kaynaklari.md` içindeki "doğrulanmalı" satırlar)
 - [ ] Ürün fotoğraflarını panelden yüklemek

@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ExternalLink, FolderTree, Inbox, LayoutDashboard, Package, Settings } from "lucide-react";
+import { ExternalLink, FileText, FolderTree, Home, Inbox, LayoutDashboard, Package, Settings } from "lucide-react";
 
 const ITEMS = [
   { href: "/admin", label: "Genel bakış", icon: LayoutDashboard, exact: true },
   { href: "/admin/talepler", label: "Talepler", icon: Inbox, badge: true },
   { href: "/admin/urunler", label: "Ürünler", icon: Package },
   { href: "/admin/kategoriler", label: "Kategoriler", icon: FolderTree },
+  { href: "/admin/icerik/ana-sayfa", label: "Ana sayfa", icon: Home, exact: true },
+  { href: "/admin/icerik", label: "Sayfa içerikleri", icon: FileText, except: "/admin/icerik/ana-sayfa" },
   { href: "/admin/ayarlar", label: "Ayarlar", icon: Settings },
 ];
 
@@ -16,8 +18,8 @@ export function AdminNav({ newCount }: { newCount: number }) {
   const pathname = usePathname();
   return (
     <nav className="flex flex-col gap-y-1 p-3" aria-label="Yönetim menüsü">
-      {ITEMS.map(({ href, label, icon: Icon, exact, badge }) => {
-        const active = exact ? pathname === href : pathname.startsWith(href);
+      {ITEMS.map(({ href, label, icon: Icon, exact, badge, except }) => {
+        const active = exact ? pathname === href : pathname.startsWith(href) && pathname !== except;
         return (
           <Link
             key={href}

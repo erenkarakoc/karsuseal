@@ -41,6 +41,7 @@ npm run dev                  # http://localhost:3000
 1. [supabase.com](https://supabase.com) üzerinde yeni proje açın (ücretsiz plan yeterli, bölge: `eu-central-1`).
 2. **SQL Editor**'de sırasıyla çalıştırın:
    - `supabase/migrations/20260921000000_init.sql` (tablolar, RLS, storage bucket, realtime)
+   - `supabase/migrations/20260922000000_site_content.sql` (panelden düzenlenen sayfa içerikleri)
    - `supabase/seed.sql` (başlangıç kataloğu)
 3. **Authentication → Users → Add user** ile ilk yönetici hesabını oluşturun (e-posta + şifre, "Auto confirm" işaretli).
 4. SQL Editor'de bu e-postayı yönetici listesine ekleyin:
@@ -130,6 +131,15 @@ Yayından önce yerelde Workers çalışma ortamında denemek için: `npm run pr
 - Ürün, kategori, görsel ve teknik föy (PDF) işlemleri: **/admin/urunler**, **/admin/kategoriler**.
 - Yüklenen fotoğraf varsa ürün sayfasında o gösterilir; yoksa ürün ailesine ait standart çizim (`public/illustrations/*.svg`) kullanılır.
 - Başlangıç kataloğunu kodda değiştirmek isterseniz `src/data/catalog.mjs`'i düzenleyip `npm run seed:build` ile `supabase/seed.sql`'i yeniden üretin (seed yalnızca olmayan kayıtları ekler).
+
+### Sayfa içerikleri
+
+Ana sayfa, sektörler, hizmetler, kurumsal, iletişim, teklif al, KVKK ve genel metinler (sayfa sonu teklif bandı, footer, ürün menüsü kutusu) panelden düzenlenir:
+
+- **/admin/icerik/ana-sayfa** — giriş bölümü (başlık, açıklama, butonlar, görseller), bölümlerin sırası ve görünürlüğü, bölüm başlıkları, çalışma adımları.
+- **/admin/icerik** — diğer sayfalar. Sektör ve hizmet eklenip çıkarılabilir, sıralanabilir; sektörlere ikon, sorunlar ve önerilen ürün grupları atanır.
+
+Kaydedilmeyen alanlar koddaki varsayılan metinleri kullanır (`src/lib/content/defaults.ts`); "Varsayılana dön" ile sayfa ilk haline döner. Uzun metinlerde boş satır yeni paragraf, `## ` ara başlık, `- ` madde listesi oluşturur.
 
 ### Teknik veriler hakkında
 

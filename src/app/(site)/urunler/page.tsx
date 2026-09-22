@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
-import { CtaBand, PageHero } from "@/components/site/ui";
+import { PageHero } from "@/components/site/ui";
+import { CtaBand } from "@/components/site/cta-band";
 import { getCategoryTree } from "@/lib/catalog";
 import { imageFor } from "@/lib/images";
 

@@ -8,6 +8,7 @@ import { SITE_URL, SUPABASE_URL } from "@/lib/env";
 import { sendEmail, sendPushToAdmins } from "@/lib/notify";
 import { slugify } from "@/lib/slug";
 import { createServiceClient } from "@/lib/supabase/server";
+import { CONTENT_KEYS } from "@/lib/content/defaults";
 
 export type ActionResult = { ok: boolean; message?: string; id?: string };
 
@@ -292,4 +293,44 @@ export async function updatePassword(_: ActionResult | null, fd: FormData): Prom
   if (password !== String(fd.get("password2") ?? "")) return { ok: false, message: "Şifreler eşleşmiyor" };
   const { error } = await supabase.auth.updateUser({ password });
   return error ? { ok: false, message: error.message } : { ok: true, message: "Şifreniz güncellendi" };
+}
+
+// ---------------------------------------------------------------------------
+// Site content (Admin → İçerik)
+// ---------------------------------------------------------------------------
+export async function saveContent(key: string, content: unknown): Promise<ActionResult> {
+  const { supabase, user } = await requireAdmin();
+  if (!(CONTENT_KEYS as string[]).includes(key)) return { ok: false, message: "Bilinmeyen içerik" };
+  if (typeof content !== "object" || content === null || Array.isArray(content)) return { ok: false, message: "Geçersiz içerik" };
+  const doc = structuredClone(content) as Record<string, unknown>;
+
+  // Lists addressed by URL need clean, unique slugs.
+  if (key === "sektorler" || key === "hizmetler") {
+    const items = Array.isArray(doc.items) ? (doc.items as Record<string, unknown>[]) : [];
+    const seen = new Set<string>();
+    for (const item of items) {
+      const name = String(item.name ?? item.title ?? "").trim();
+      if (!name) return { ok: false, message: "Adı boş bırakılmış bir kayıt var." };
+      let slug = slugify(String(item.slug || name)) || "kayit";
+      while (seen.has(slug)) slug = `${slug}-2`;
+      seen.add(slug);
+      item.slug = slug;
+    }
+  }
+
+  const json = JSON.stringify(doc);
+  if (json.length > 200_000) return { ok: false, message: "İçerik çok büyük" };
+  const { error } = await supabase.from("site_content").upsert({ key, content: doc, updated_by: user.email }, { onConflict: "key" });
+  if (error) return { ok: false, message: error.message.includes("site_content") ? "site_content tablosu yok — supabase/migrations/20260922000000_site_content.sql dosyasını çalıştırın." : error.message };
+  revalidatePath("/", "layout");
+  return { ok: true, message: "Kaydedildi — değişiklikler sitede yayında." };
+}
+
+export async function resetContent(key: string): Promise<ActionResult> {
+  const { supabase } = await requireAdmin();
+  if (!(CONTENT_KEYS as string[]).includes(key)) return { ok: false, message: "Bilinmeyen içerik" };
+  const { error } = await supabase.from("site_content").delete().eq("key", key);
+  if (error) return { ok: false, message: error.message };
+  revalidatePath("/", "layout");
+  return { ok: true, message: "Varsayılan içeriğe dönüldü." };
 }
