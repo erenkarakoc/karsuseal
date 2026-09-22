@@ -133,7 +133,7 @@ Yayından önce yerelde Workers çalışma ortamında denemek için: `npm run pr
 
 ### Teknik veriler hakkında
 
-Mekanik salmastraların çalışma limitleri (mil çapı, basınç, sıcaklık, kayma hızı, eksenel hareket), ürünlerde "Muadil tipler" olarak belirtilen standart tiplerin üretici kataloglarında yayımlanan tipik değerlerinden alınmıştır. Döner başlık, örgü salmastra, conta ve O-ring değerleri sektördeki tipik aralıklardır. **Yayına almadan önce kendi tedarikçi föylerinizle karşılaştırıp gerekirse panelden güncelleyin.** Ürün sayfalarında değerlerin tipik olduğu ve uygulamaya göre değişebileceği notu yer alır.
+Mekanik salmastraların çalışma limitleri (mil çapı, basınç, sıcaklık, kayma hızı, eksenel hareket), ürünlerde "Muadil tipler" olarak belirtilen standart tiplerin üretici kataloglarında yayımlanan tipik değerlerinden alınmıştır. Döner başlık, örgü salmastra, conta ve O-ring değerleri sektördeki tipik aralıklardır. **Yayına almadan önce kendi tedarikçi föylerinizle karşılaştırıp gerekirse panelden güncelleyin.** Hangi değerin hangi kaynaktan geldiği ve hangilerinin tahmini olduğu `docs/teknik-veri-kaynaklari.md` dosyasında. Ürün sayfalarında değerlerin tipik olduğu ve uygulamaya göre değişebileceği notu yer alır.
 
 ### Ürün görselleri
 
