@@ -4,12 +4,29 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
-import { SITE_URL } from "@/lib/env";
+import { SITE_URL, SUPABASE_URL } from "@/lib/env";
 import { sendEmail, sendPushToAdmins } from "@/lib/notify";
 import { slugify } from "@/lib/slug";
 import { createServiceClient } from "@/lib/supabase/server";
 
 export type ActionResult = { ok: boolean; message?: string; id?: string };
+
+// ---------------------------------------------------------------------------
+// Storage cleanup: files in the public `catalog` bucket that are no longer referenced
+// ---------------------------------------------------------------------------
+const BUCKET_PREFIX = `${SUPABASE_URL}/storage/v1/object/public/catalog/`;
+type Db = Awaited<ReturnType<typeof requireAdmin>>["supabase"];
+
+async function removeStorageFiles(supabase: Db, urls: (string | null | undefined)[]) {
+  const paths = [...new Set(urls)]
+    .filter((u): u is string => Boolean(u && u.startsWith(BUCKET_PREFIX)))
+    .map((u) => decodeURIComponent(u.slice(BUCKET_PREFIX.length).split("?")[0]));
+  if (!paths.length) return;
+  const { error } = await supabase.storage.from("catalog").remove(paths);
+  if (error) console.error("[storage cleanup]", error.message);
+}
+const productFiles = (p: { image_url?: string | null; gallery?: string[] | null; datasheet_url?: string | null } | null) =>
+  p ? [p.image_url, ...(p.gallery ?? []), p.datasheet_url] : [];
 
 const lines = (s: unknown) => String(s ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 
@@ -92,8 +109,13 @@ export async function saveProduct(input: ProductInput): Promise<ActionResult> {
     datasheet_url: p.datasheet_url || null,
     illustration: p.illustration || null,
   };
+  const { data: before } = id ? await supabase.from("products").select("image_url, gallery, datasheet_url").eq("id", id).maybeSingle() : { data: null };
   const query = id ? supabase.from("products").update(row).eq("id", id).select("id").single() : supabase.from("products").insert(row).select("id").single();
   const { data, error } = await query;
+  if (!error && before) {
+    const kept = new Set(productFiles(row));
+    await removeStorageFiles(supabase, productFiles(before).filter((u) => !kept.has(u)));
+  }
   if (error) return { ok: false, message: error.code === "23505" ? "Bu URL (slug) başka bir üründe kullanılıyor." : error.message };
   revalidatePath("/", "layout");
   return { ok: true, id: data.id, message: "Ürün kaydedildi" };
@@ -107,7 +129,9 @@ export async function toggleProduct(id: string, field: "is_published" | "is_feat
 
 export async function deleteProduct(id: string) {
   const { supabase } = await requireAdmin();
-  await supabase.from("products").delete().eq("id", id);
+  const { data: before } = await supabase.from("products").select("image_url, gallery, datasheet_url").eq("id", id).maybeSingle();
+  const { error } = await supabase.from("products").delete().eq("id", id);
+  if (!error) await removeStorageFiles(supabase, productFiles(before));
   revalidatePath("/", "layout");
   redirect("/admin/urunler");
 }
@@ -143,10 +167,12 @@ export async function saveCategory(_: ActionResult | null, fd: FormData): Promis
     sort_order: c.sort_order,
     is_published: fd.get("is_published") === "on",
   };
+  const { data: before } = id ? await supabase.from("categories").select("image_url").eq("id", id).maybeSingle() : { data: null };
   const { data, error } = id
     ? await supabase.from("categories").update(row).eq("id", id).select("id").single()
     : await supabase.from("categories").insert(row).select("id").single();
   if (error) return { ok: false, message: error.code === "23505" ? "Bu URL (slug) başka bir kategoride kullanılıyor." : error.message };
+  if (before?.image_url && before.image_url !== row.image_url) await removeStorageFiles(supabase, [before.image_url]);
   revalidatePath("/", "layout");
   if (!id) redirect(`/admin/kategoriler/${data.id}`);
   return { ok: true, id: data.id, message: "Kategori kaydedildi" };
@@ -156,7 +182,9 @@ export async function deleteCategory(id: string): Promise<ActionResult> {
   const { supabase } = await requireAdmin();
   const { count } = await supabase.from("products").select("id", { count: "exact", head: true }).eq("category_id", id);
   if (count) return { ok: false, message: `Bu kategoride ${count} ürün var. Önce ürünleri başka kategoriye taşıyın.` };
+  const { data: before } = await supabase.from("categories").select("image_url").eq("id", id).maybeSingle();
   const { error } = await supabase.from("categories").delete().eq("id", id);
+  if (!error) await removeStorageFiles(supabase, [before?.image_url]);
   if (error) return { ok: false, message: error.message };
   revalidatePath("/", "layout");
   redirect("/admin/kategoriler");
