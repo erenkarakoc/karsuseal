@@ -34,7 +34,7 @@ export function LiveInquiries() {
         // With push enabled, the service worker already shows a system notification.
         if (document.visibilityState !== "visible" && "Notification" in window && Notification.permission === "granted") {
           navigator.serviceWorker?.getRegistration().then((reg) => {
-            if (!reg) new Notification(title, { body, tag: i.id, icon: "/brand/karsu-seal-app-icon.svg" });
+            if (!reg) new Notification(title, { body, tag: i.id, icon: "/brand/png/icon-192.png" });
           });
         }
       })

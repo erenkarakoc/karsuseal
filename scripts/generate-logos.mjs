@@ -213,6 +213,32 @@ for (const [key, c] of Object.entries(schemes)) {
   write("karsu-seal-favicon.svg", svg(ICON, ICON, body, "Karsu Seal"));
 }
 
+// 7) PNG icons for the web app manifest, iOS home screen and social previews
+{
+  const { Resvg } = await import("@resvg/resvg-js");
+  const png = (svgText, size) => new Resvg(svgText, { fitTo: { mode: "width", value: size } }).render().asPng();
+  const pngDir = path.join(outDir, "png");
+  fs.mkdirSync(pngDir, { recursive: true });
+  const square = (s, rx, bg, pad) =>
+    svg(s, s, `<rect width="${s}" height="${s}" rx="${rx}" fill="${bg}"/>` + iconGroup(COLORS.white, COLORS.white, pad, pad, (s - pad * 2) / ICON), "Karsu Seal");
+  const outputs = [
+    ["icon-192.png", square(512, 112, COLORS.blue, 88), 192],
+    ["icon-512.png", square(512, 112, COLORS.blue, 88), 512],
+    // maskable: full-bleed background, mark inside the 80% safe zone
+    ["icon-maskable-512.png", square(512, 0, COLORS.blue, 128), 512],
+    ["apple-touch-icon.png", square(512, 0, COLORS.blue, 104), 180],
+    ["favicon-48.png", svg(ICON, ICON, iconGroup(COLORS.navy, COLORS.blue), "Karsu Seal"), 48],
+    ["logo-horizontal-light.png", fs.readFileSync(path.join(outDir, "karsu-seal-logo-horizontal-light.svg"), "utf8"), 1200],
+  ];
+  for (const [name, text, size] of outputs) {
+    fs.writeFileSync(path.join(pngDir, name), png(text, size));
+    console.log("  ✓ png/" + name);
+  }
+  // Next.js file-convention icon for iOS
+  fs.copyFileSync(path.join(pngDir, "apple-touch-icon.png"), path.join(root, "src", "app", "apple-icon.png"));
+  console.log("  ✓ src/app/apple-icon.png");
+}
+
 // Export raw geometry for the React <Logo> component
 fs.writeFileSync(
   path.join(root, "src", "components", "brand", "logo-paths.ts"),

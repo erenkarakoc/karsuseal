@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     "Mekanik salmastralar, kartuş ve mikser salmastraları, döner başlıklar, yumuşak salmastralar, O-ringler ve conta ürünleri. Teknik destek ve hızlı teklif.",
   applicationName: "Karsu Seal",
   openGraph: { type: "website", locale: "tr_TR", siteName: "Karsu Seal" },
-  icons: { icon: "/icon.svg", apple: "/brand/karsu-seal-app-icon.svg" },
+  appleWebApp: { capable: true, title: "Karsu Seal", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {

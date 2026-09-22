@@ -12,8 +12,8 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title || "Karsu Seal", {
       body: data.body || "",
-      icon: "/brand/karsu-seal-app-icon.svg",
-      badge: "/brand/karsu-seal-icon-mono-black.svg",
+      icon: "/brand/png/icon-192.png",
+      badge: "/brand/png/favicon-48.png",
       tag: data.tag,
       renotify: Boolean(data.tag),
       data: { url: data.url || "/admin" },
