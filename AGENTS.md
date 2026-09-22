@@ -1,3 +1,14 @@
+# Karsu Seal — çalışma kuralları
+
+## ÖNEMLİ: Tüm iş TODO.md üzerinden yürür
+
+- Her çalışma `TODO.md` listesi üzerinden planlanır ve takip edilir. Listede olmayan bir işe başlamadan önce listeye madde olarak eklenir.
+- Kullanıcının verdiği her yeni istek, iş sürerken gelse bile, hemen `TODO.md`'ye ayrı bir madde olarak yazılır.
+- Bir maddeye başlanırken ve bitince liste güncellenir (`[ ]` → `[x]`); yarım kalan iş açık madde olarak kalır.
+- Her tamamlanan madde (veya mantıklı madde grubu) ayrı bir commit ile kaydedilir ve `TODO.md` aynı commit'te güncellenir.
+- Oturum başında önce `TODO.md` okunur; kalan maddeler oradan devam ettirilir.
+
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know
