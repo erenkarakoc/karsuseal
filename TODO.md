@@ -17,6 +17,9 @@
 
 ## Sonraki
 
+- [x] Sol altta her sayfada görünen sabit (floating) WhatsApp butonu
+- [x] Panelde WhatsApp ve telefon numaralarının ayrı ayrı düzenlenebilmesi + butonun açık/kapalı ve hazır mesaj ayarı
+
 - [x] Ürün illüstrasyonlarında ürünleri görselin tam ortasına hizala (ölçülen sınırlara göre ortalama + ortak boyut)
 - [x] Sektörler, hizmetler, kurumsal vb. içerik sayfaları için admin panelinde düzenleme sayfası (/admin/icerik)
 - [x] Admin panelinde "Ana sayfa" sayfası: ana sayfadaki bölümler özelleştirilebilsin (/admin/icerik/ana-sayfa)

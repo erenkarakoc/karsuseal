@@ -1,5 +1,6 @@
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
+import { WhatsAppButton } from "@/components/site/whatsapp-button";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,6 +11,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <Header />
       <main id="icerik" className="flex-1">{children}</main>
       <Footer />
+      <WhatsAppButton />
     </div>
   );
 }

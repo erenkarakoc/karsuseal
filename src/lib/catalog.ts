@@ -133,7 +133,7 @@ export const getPublicSettings = cache(async (): Promise<PublicSettings> => {
   // With Supabase, only what the admin entered is shown; empty fields are simply hidden.
   const preview: PublicSettings = {
     company_phone: "+90 (000) 000 00 00",
-    company_whatsapp: null,
+    company_whatsapp: "+90 (000) 000 00 00",
     company_email: "info@karsuseal.com",
     company_address: "İstanbul, Türkiye",
     company_maps_url: null,

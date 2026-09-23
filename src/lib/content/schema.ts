@@ -6,6 +6,7 @@ export type Field =
   | { type: "text"; key: string; label: string; hint?: string; placeholder?: string }
   | { type: "textarea"; key: string; label: string; hint?: string; rows?: number }
   | { type: "number"; key: string; label: string; min?: number; max?: number; hint?: string }
+  | { type: "boolean"; key: string; label: string; hint?: string }
   | { type: "strings"; key: string; label: string; hint?: string }
   | { type: "link"; key: string; label: string; hint?: string }
   | { type: "icon"; key: string; label: string }
@@ -248,6 +249,17 @@ export const PAGE_SCHEMAS: PageSchema[] = [
         ],
       },
       { type: "textarea", key: "footerAbout", label: "Footer tanıtım metni", rows: 3 },
+      {
+        type: "group",
+        key: "whatsapp",
+        label: "WhatsApp butonu (sol altta sabit)",
+        hint: "Numara Ayarlar sayfasındaki \"WhatsApp\" alanından girilir. Numara boşsa buton hiç gösterilmez.",
+        fields: [
+          { type: "boolean", key: "enabled", label: "Butonu göster" },
+          { type: "text", key: "label", label: "Buton yazısı", hint: "Masaüstünde ikonun yanında görünür" },
+          { type: "textarea", key: "message", label: "Hazır mesaj", rows: 2, hint: "WhatsApp açıldığında mesaj kutusuna önceden yazılır. Boş bırakılabilir." },
+        ],
+      },
       {
         type: "group",
         key: "megaMenu",

@@ -46,6 +46,8 @@ export type GeneralContent = {
   ctaBand: { title: string; text: string; primary: Cta; secondary: Cta };
   footerAbout: string;
   megaMenu: { title: string; text: string };
+  /** Floating WhatsApp button; the number itself is set in Ayarlar (settings.company_whatsapp). */
+  whatsapp: { enabled: boolean; label: string; message: string };
 };
 
 export type ContentMap = {
@@ -193,6 +195,11 @@ export const DEFAULT_CONTENT: ContentMap = {
     },
     footerAbout: "Pompa, mikser ve döner ekipmanlar için mekanik salmastra, döner başlık ve sızdırmazlık ürünleri; seçim, tedarik ve revizyon hizmetleri.",
     megaMenu: { title: "Doğru salmastrayı birlikte seçelim", text: "Akışkan, basınç, sıcaklık ve mil çapını paylaşın; uygun tipi ve malzemeyi önerelim." },
+    whatsapp: {
+      enabled: true,
+      label: "WhatsApp'tan yazın",
+      message: "Merhaba, salmastra hakkında bilgi almak istiyorum.",
+    },
   },
 };
 

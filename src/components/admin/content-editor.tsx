@@ -68,6 +68,16 @@ function FieldEditor({ field, value, onChange, parent, ctx }: { field: Field; va
           <input type="number" className={inputCls} min={field.min} max={field.max} value={Number(value ?? 0)} onChange={(e) => onChange(Math.min(field.max ?? Infinity, Math.max(field.min ?? -Infinity, Number(e.target.value) || 0)))} />
         </label>
       );
+    case "boolean":
+      return (
+        <label className="flex items-center justify-between gap-3 rounded-lg border border-card-line px-4 py-3">
+          <span>
+            <span className="block text-sm font-medium text-foreground">{field.label}</span>
+            {field.hint && <span className="mt-0.5 block text-xs text-muted-foreground-1">{field.hint}</span>}
+          </span>
+          <input type="checkbox" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} className="size-4 shrink-0 rounded-sm border-line-3 text-primary focus:ring-primary" />
+        </label>
+      );
     case "strings": {
       const list = Array.isArray(value) ? (value as string[]) : [];
       return (

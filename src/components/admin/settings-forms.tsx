@@ -9,10 +9,11 @@ import type { Settings } from "@/lib/types";
 
 export function SettingsForm({ settings }: { settings: Settings }) {
   const [result, action, pending] = useActionState(saveSettings, null);
-  const field = (name: keyof Settings, label: string, placeholder?: string) => (
+  const field = (name: keyof Settings, label: string, placeholder?: string, hint?: string) => (
     <div>
       <label htmlFor={name} className="mb-2 block text-sm font-medium text-foreground">{label}</label>
       <input id={name} name={name} defaultValue={(settings[name] as string) ?? ""} placeholder={placeholder} className={inputCls} />
+      {hint && <p className="mt-1.5 text-xs text-muted-foreground-1">{hint}</p>}
     </div>
   );
   return (
@@ -37,8 +38,8 @@ export function SettingsForm({ settings }: { settings: Settings }) {
 
         <h2 className="mt-8 border-t border-card-divider pt-6 font-display font-semibold text-foreground">Sitede görünen iletişim bilgileri</h2>
         <div className="mt-5 grid gap-5 md:grid-cols-2">
-          {field("company_phone", "Telefon", "+90 212 000 00 00")}
-          {field("company_whatsapp", "WhatsApp", "+90 5xx xxx xx xx")}
+          {field("company_phone", "Telefon", "+90 212 000 00 00", "Üst çubukta, iletişim sayfasında ve footer'da aranabilir numara olarak görünür.")}
+          {field("company_whatsapp", "WhatsApp numarası", "+90 5xx xxx xx xx", "Telefondan ayrıdır. Sol alttaki sabit WhatsApp butonu ve iletişim sayfası bu numarayı kullanır; boş bırakılırsa buton gösterilmez.")}
           {field("company_email", "E-posta", "info@karsuseal.com")}
           {field("working_hours", "Çalışma saatleri", "Hafta içi 08:30 – 18:00")}
           <div className="md:col-span-2">{field("company_address", "Adres")}</div>
